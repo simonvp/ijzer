@@ -6,6 +6,7 @@
   // ------------------------------------------------------------- settings
   App.screens.settings = function () {
     const s = Store.getSettings();
+    let kbList = [...(s.kettlebells && s.kettlebells.length ? s.kettlebells : [12])].sort((a, b) => a - b);
     App.render(`
       <div class="screen">
         <div class="topbar">
@@ -39,7 +40,10 @@
         <div class="card">
           <div class="field"><label>Standaard gymduur (min)</label><input id="sGymDur" type="number" value="${s.defaultGymDurationMin || 60}"></div>
           <div class="field"><label>Standaard kettlebellgewicht (kg)</label><input id="sKbWeight" type="number" value="${s.defaultKettlebellWeight || 12}"></div>
-          <div class="field"><label>Beschikbare kettlebells (komma-gescheiden, kg)</label><input id="sKettlebells" value="${(s.kettlebells || [12, 16]).join(', ')}"></div>
+          <div class="field">
+            <label>Mijn kettlebells</label>
+            <div class="chip-row" id="kbChipRow" style="flex-wrap:wrap;margin-top:8px;"></div>
+          </div>
           <div class="field">
             <label>Cardiofavoriet</label>
             <select id="sCardioFav">
@@ -73,6 +77,42 @@
     App.$('#sDark').addEventListener('change', (e) => {
       Store.updateSettings({ darkMode: e.target.checked }).then(App.applyTheme);
     });
+
+    function renderKbChips() {
+      const row = App.$('#kbChipRow');
+      if (!row) return;
+      row.innerHTML = kbList.map(w => `
+        <span class="chip active" style="display:flex;align-items:center;gap:6px;">
+          ${w} kg
+          <span data-kbdel="${w}" style="cursor:pointer;font-weight:700;padding:0 2px;">×</span>
+        </span>
+      `).join('') + `<button class="chip" id="btnAddKb">+ Toevoegen</button>`;
+      row.querySelectorAll('[data-kbdel]').forEach(el => el.onclick = () => {
+        const w = parseFloat(el.dataset.kbdel);
+        if (kbList.length <= 1) { App.showToast('Je hebt minstens één kettlebell nodig'); return; }
+        kbList = kbList.filter(x => x !== w);
+        renderKbChips();
+      });
+      App.$('#btnAddKb').onclick = openAddKbSheet;
+    }
+
+    function openAddKbSheet() {
+      App.openSheet(`
+        <h3>Kettlebell toevoegen</h3>
+        <div class="field mt-16"><label>Gewicht (kg)</label><input id="newKbWeight" type="number" step="0.5" inputmode="decimal" autofocus placeholder="bv. 8"></div>
+        <button class="btn primary block" id="btnConfirmAddKb">Toevoegen</button>
+      `);
+      App.$('#btnConfirmAddKb').onclick = () => {
+        const val = parseFloat(App.$('#newKbWeight').value);
+        if (!val || val <= 0) { App.showToast('Vul een geldig gewicht in'); return; }
+        if (!kbList.includes(val)) { kbList.push(val); kbList.sort((a, b) => a - b); }
+        App.closeSheet();
+        renderKbChips();
+      };
+    }
+
+    renderKbChips();
+
     App.$('#btnSaveSettings').onclick = async () => {
       await Store.updateSettings({
         name: App.$('#sName').value.trim(),
@@ -83,7 +123,7 @@
         firstDayOfWeek: App.$('#sFirstDay').value,
         defaultGymDurationMin: parseInt(App.$('#sGymDur').value) || 60,
         defaultKettlebellWeight: parseFloat(App.$('#sKbWeight').value) || 12,
-        kettlebells: App.$('#sKettlebells').value.split(',').map(x => parseFloat(x.trim())).filter(Boolean),
+        kettlebells: kbList,
         cardioFavorite: App.$('#sCardioFav').value,
         dumbbellSteps: App.$('#sDumbbells').value.split(',').map(x => parseFloat(x.trim())).filter(Boolean),
         plateSteps: App.$('#sPlates').value.split(',').map(x => parseFloat(x.trim())).filter(Boolean),

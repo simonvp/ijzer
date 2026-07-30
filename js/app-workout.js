@@ -451,13 +451,20 @@
 
   function renderKbSummary(s) {
     const k = s.kettlebell || {};
+    const weightDisplay = k.weightKg ? `${k.weightKg} kg` : 'Gemengd';
+    const perExercise = k.exerciseWeights ? Object.entries(k.exerciseWeights) : [];
     return `
       <div class="stat-grid">
         <div class="stat-box"><div class="val num">${k.rounds ?? '–'}</div><div class="label">Rondes</div></div>
-        <div class="stat-box"><div class="val num">${k.weightKg ?? '–'} kg</div><div class="label">Kettlebell</div></div>
+        <div class="stat-box"><div class="val num">${weightDisplay}</div><div class="label">Kettlebell</div></div>
         <div class="stat-box"><div class="val num">${k.rpe ?? '–'}</div><div class="label">RPE</div></div>
         <div class="stat-box"><div class="val num">${s.durationSec ? Utils.fmtDurationLong(s.durationSec) : '–'}</div><div class="label">Duur</div></div>
       </div>
+      ${perExercise.length ? `
+      <div class="section-title">Gewicht per oefening</div>
+      <div class="card">
+        ${perExercise.map(([exId, w]) => `<div class="list-row"><div class="l-title">${App.esc(App.exerciseName(exId))}</div><div class="l-val">${w} kg</div></div>`).join('')}
+      </div>` : ''}
       ${k.note ? `<div class="card mt-12"><div class="card-title">Notitie</div><p class="mt-8">${App.esc(k.note)}</p></div>` : ''}
     `;
   }

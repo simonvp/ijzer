@@ -5,6 +5,7 @@
 (() => {
   let tpl = null;
   let weightKg = 12;
+  let exerciseWeights = {}; // exerciseId -> kg used
   let totalSeconds = 0;
   let remaining = 0;
   let elapsed = 0;
@@ -20,6 +21,8 @@
     if (!tpl) { App.navigate('today'); return; }
     const settings = Store.getSettings();
     weightKg = settings.defaultKettlebellWeight || (settings.kettlebells && settings.kettlebells[0]) || 12;
+    exerciseWeights = {};
+    tpl.items.forEach(it => { exerciseWeights[it.exerciseId] = weightKg; });
     totalSeconds = tpl.durationMin * 60;
     remaining = totalSeconds;
     elapsed = 0;
@@ -63,9 +66,15 @@
     if (roundsEl) roundsEl.textContent = rounds;
   }
 
+  function allSameWeight() {
+    const vals = Object.values(exerciseWeights);
+    if (!vals.length) return null;
+    return vals.every(v => v === vals[0]) ? vals[0] : null;
+  }
+
   function render() {
     const settings = Store.getSettings();
-    const weights = settings.kettlebells && settings.kettlebells.length ? settings.kettlebells : [12, 16];
+    const weights = settings.kettlebells && settings.kettlebells.length ? settings.kettlebells : [6, 12];
     App.render(`
       <div class="screen">
         <div class="topbar">
@@ -76,8 +85,11 @@
           </div>
         </div>
 
-        <div class="seg mt-8">
-          ${weights.map(w => `<button class="${w === weightKg ? 'active' : ''}" data-w="${w}">${w} kg</button>`).join('')}
+        <div class="field mt-8">
+          <label>Snel instellen voor alle oefeningen</label>
+          <div class="seg mt-8">
+            ${weights.map(w => `<button class="${allSameWeight() === w ? 'active' : ''}" data-w="${w}">${w} kg</button>`).join('')}
+          </div>
         </div>
 
         <div class="kb-timer-wrap">
@@ -98,14 +110,15 @@
         </div>
 
         <div class="section-title">Oefeningen (per ronde)</div>
+        <p class="text-muted text-sm" style="margin-top:-6px;">Tik op het gewicht om het per oefening aan te passen.</p>
         <div class="kb-list">
           ${tpl.items.map(it => `
-            <div class="kb-item" data-info="${it.exerciseId}" style="cursor:pointer;">
-              <div class="name">${App.esc(App.exerciseName(it.exerciseId))}</div>
-              <div style="display:flex;align-items:center;gap:10px;">
+            <div class="kb-item">
+              <div style="flex:1;cursor:pointer;" data-info="${it.exerciseId}">
+                <div class="name">${App.esc(App.exerciseName(it.exerciseId))}</div>
                 <div class="reps">${App.esc(it.reps)}</div>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--text-faint);flex:none;"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
               </div>
+              <button class="chip active" data-wcycle="${it.exerciseId}" style="flex:none;">${exerciseWeights[it.exerciseId]} kg</button>
             </div>`).join('')}
         </div>
 
@@ -119,34 +132,50 @@
       const ok = await App.confirm('Kettlebellsessie verlaten? Voortgang gaat verloren.', { danger: true, okLabel: 'Verlaten' });
       if (ok) { clearInterval(timerHandle); App.navigate('today'); }
     };
-    App.$$('.seg button').forEach(b => b.onclick = () => { weightKg = parseFloat(b.dataset.w); render(); });
+    App.$$('.seg button[data-w]').forEach(b => b.onclick = () => {
+      weightKg = parseFloat(b.dataset.w);
+      tpl.items.forEach(it => { exerciseWeights[it.exerciseId] = weightKg; });
+      render();
+    });
     App.$('#btnPause').onclick = (e) => { paused = !paused; e.target.textContent = paused ? 'Hervat' : 'Pauze'; };
     App.$('#roundPlus').onclick = () => { rounds++; updateTimerDom(); };
     App.$('#roundMinus').onclick = () => { rounds = Math.max(0, rounds - 1); updateTimerDom(); };
     App.$('#btnEndEarly').onclick = () => { clearInterval(timerHandle); openFinishSheet(false); };
-    App.$$('.kb-item[data-info]').forEach(el => el.onclick = () => App.openExerciseInfo(el.dataset.info));
+    App.$$('[data-info]').forEach(el => el.onclick = () => App.openExerciseInfo(el.dataset.info));
+    App.$$('[data-wcycle]').forEach(btn => btn.onclick = () => {
+      const exId = btn.dataset.wcycle;
+      const settings = Store.getSettings();
+      const weights = settings.kettlebells && settings.kettlebells.length ? settings.kettlebells : [12];
+      const idx = weights.indexOf(exerciseWeights[exId]);
+      exerciseWeights[exId] = weights[(idx + 1) % weights.length];
+      render();
+    });
   }
 
   function openFinishSheet(timeUp) {
     finished = true;
+    const summaryLine = Object.entries(exerciseWeights)
+      .map(([exId, w]) => `${App.exerciseName(exId)}: ${w} kg`).join(' · ');
     App.openSheet(`
       <h3>${timeUp ? 'Tijd voorbij' : 'Sessie afronden'}</h3>
       <div class="field mt-16"><label>Aantal rondes</label><input id="fRounds" type="number" value="${rounds}"></div>
       <div class="field"><label>Totale duur (min)</label><input id="fDuration" type="number" value="${Math.round(elapsed / 60)}"></div>
-      <div class="field"><label>Kettlebell gebruikt</label><input id="fWeight" type="number" value="${weightKg}"></div>
-      <div class="field"><label>RPE (1-10)</label><input id="fRpe" type="number" min="1" max="10"></div>
+      <p class="text-muted text-sm">Gebruikte gewichten: ${App.esc(summaryLine)}</p>
+      <div class="field mt-12"><label>RPE (1-10)</label><input id="fRpe" type="number" min="1" max="10"></div>
       <div class="field"><label>Opmerkingen</label><textarea id="fNote" rows="2"></textarea></div>
       <button class="btn primary block" id="btnSaveKb">Opslaan</button>
     `, { onClose: () => { if (!document.getElementById('kbSaved')) finished = false; } });
 
     App.$('#btnSaveKb').onclick = async () => {
+      const uniform = allSameWeight();
       const s = {
         id: null, date: Utils.todayISO(), type: 'kettlebell', name: tpl.name, templateId: tpl.id,
         variant: tpl.variant, status: 'completed',
         durationSec: (parseFloat(App.$('#fDuration').value) || 0) * 60,
         kettlebell: {
           rounds: parseInt(App.$('#fRounds').value) || 0,
-          weightKg: parseFloat(App.$('#fWeight').value) || weightKg,
+          weightKg: uniform, // overall weight if consistent across exercises, else null
+          exerciseWeights: { ...exerciseWeights },
           rpe: parseFloat(App.$('#fRpe').value) || null,
           note: App.$('#fNote').value,
         },

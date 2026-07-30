@@ -10,7 +10,7 @@
     ob = {
       name: s.name, heightCm: s.heightCm, startWeightKg: s.startWeightKg,
       days: { ...Store.getSchedule().days },
-      equipment: { gym: true, kb12: true, kb16: true, mat: true, bands: false },
+      equipment: { gym: true, kb6: true, kb12: true, mat: true, bands: false },
       goal: s.goal || 'spiermassa',
     };
     renderStep(1);
@@ -71,11 +71,12 @@
         <p class="hint">Wat heb je thuis en in de gym?</p>
         <div class="choice-grid">
           ${equipCard('gym', 'Gym-toegang', 'Losse gewichten, machines')}
+          ${equipCard('kb6', 'Kettlebell 6 kg', 'Thuis')}
           ${equipCard('kb12', 'Kettlebell 12 kg', 'Thuis')}
-          ${equipCard('kb16', 'Kettlebell 16 kg', 'Thuis')}
           ${equipCard('mat', 'Fitnessmat', 'Thuis')}
           ${equipCard('bands', 'Weerstandsbanden', 'Optioneel')}
         </div>
+        <p class="text-muted text-sm mt-12">Ander gewicht? Voeg dat later toe via Instellingen → Materiaal.</p>
         <button class="btn primary block mt-20" id="obNext3">Volgende</button>
       `);
       App.$$('.choice-card').forEach(c => c.onclick = () => {
@@ -121,9 +122,10 @@
         <button class="btn primary block mt-20" id="obFinish">Start met trainen</button>
       `);
       App.$('#obFinish').onclick = async () => {
+        const kbList = [ob.equipment.kb6 ? 6 : null, ob.equipment.kb12 ? 12 : null].filter(Boolean);
         await Store.updateSettings({
           name: ob.name, heightCm: ob.heightCm, startWeightKg: ob.startWeightKg,
-          goal: ob.goal, kettlebells: [ob.equipment.kb12 ? 12 : null, ob.equipment.kb16 ? 16 : null].filter(Boolean),
+          goal: ob.goal, kettlebells: kbList.length ? kbList : [12],
         });
         if (ob.startWeightKg) {
           await Store.addBodyweight({ date: Utils.todayISO(), weight: ob.startWeightKg, fasted: false, note: 'Startgewicht' });

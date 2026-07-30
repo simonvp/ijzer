@@ -254,7 +254,7 @@ const Seed = (() => {
     dumbbellSteps: [2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38, 40],
     plateSteps: [1.25, 2.5, 5, 10, 15, 20],
     machineStep: 5,
-    kettlebells: [12, 16],
+    kettlebells: [6, 12],
     cardioFavorite: 'fietsen',
     darkMode: true,
     goal: 'spiermassa',
