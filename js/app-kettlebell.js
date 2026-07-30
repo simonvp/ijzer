@@ -100,9 +100,12 @@
         <div class="section-title">Oefeningen (per ronde)</div>
         <div class="kb-list">
           ${tpl.items.map(it => `
-            <div class="kb-item">
+            <div class="kb-item" data-info="${it.exerciseId}" style="cursor:pointer;">
               <div class="name">${App.esc(App.exerciseName(it.exerciseId))}</div>
-              <div class="reps">${App.esc(it.reps)}</div>
+              <div style="display:flex;align-items:center;gap:10px;">
+                <div class="reps">${App.esc(it.reps)}</div>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--text-faint);flex:none;"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+              </div>
             </div>`).join('')}
         </div>
 
@@ -121,6 +124,7 @@
     App.$('#roundPlus').onclick = () => { rounds++; updateTimerDom(); };
     App.$('#roundMinus').onclick = () => { rounds = Math.max(0, rounds - 1); updateTimerDom(); };
     App.$('#btnEndEarly').onclick = () => { clearInterval(timerHandle); openFinishSheet(false); };
+    App.$$('.kb-item[data-info]').forEach(el => el.onclick = () => App.openExerciseInfo(el.dataset.info));
   }
 
   function openFinishSheet(timeUp) {

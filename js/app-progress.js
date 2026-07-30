@@ -128,6 +128,14 @@
           <button data-m="volume">Volume</button>
         </div>
         <div class="chart-wrap"><canvas id="progChart" height="180"></canvas></div>
+        ${meta.instructions || meta.cues || meta.mistakes ? `
+        <div class="section-title">Uitleg</div>
+        <div class="card">
+          ${meta.instructions ? `<p>${App.esc(meta.instructions)}</p>` : ''}
+          ${meta.cues ? `<p class="text-muted text-sm mt-8">💡 ${App.esc(meta.cues)}</p>` : ''}
+          ${meta.mistakes ? `<p class="text-muted text-sm mt-8">⚠️ ${App.esc(meta.mistakes)}</p>` : ''}
+          <a href="${App.youtubeSearchUrl(meta.name)}" target="_blank" rel="noopener noreferrer" class="btn sm block mt-12" style="text-decoration:none;">▶ Bekijk uitleg op YouTube</a>
+        </div>` : ''}
         <div class="section-title">Historiek</div>
         <div class="card" id="historyList">${historyRows(completed)}</div>
         <div class="section-title">Notitie</div>

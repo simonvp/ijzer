@@ -171,6 +171,34 @@ App.weightUnitLabel = function (ex) {
   }
 };
 
+// ----------------------------------------------------- exercise info sheet
+App.youtubeSearchUrl = function (name) {
+  return 'https://www.youtube.com/results?search_query=' + encodeURIComponent(name + ' how to exercise');
+};
+
+App.openExerciseInfo = function (exerciseId) {
+  const ex = Store.getExercise(exerciseId);
+  if (!ex) return;
+  App.openSheet(`
+    <h3>${App.esc(ex.name)}</h3>
+    <p class="text-muted text-sm mt-8">${App.esc(ex.primaryMuscle || '')}${ex.equipment ? ' · ' + App.esc(ex.equipment) : ''}</p>
+    ${ex.instructions ? `<div class="card mt-16"><div class="card-title">Uitvoering</div><p class="mt-8">${App.esc(ex.instructions)}</p></div>` : ''}
+    ${ex.cues ? `<div class="card mt-12"><div class="card-title">Technische tip</div><p class="mt-8">${App.esc(ex.cues)}</p></div>` : ''}
+    ${ex.mistakes ? `<div class="card mt-12"><div class="card-title">Veelgemaakte fout</div><p class="mt-8">${App.esc(ex.mistakes)}</p></div>` : ''}
+    ${!ex.instructions && !ex.cues && !ex.mistakes ? `<p class="text-muted text-sm mt-16">Nog geen beschrijving ingevuld.</p>` : ''}
+    <a href="${App.youtubeSearchUrl(ex.name)}" target="_blank" rel="noopener noreferrer" class="btn block mt-16" style="text-decoration:none;display:flex;align-items:center;justify-content:center;gap:8px;">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M23.5 6.2a3 3 0 00-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 00.5 6.2 31 31 0 000 12a31 31 0 00.5 5.8 3 3 0 002.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 002.1-2.1A31 31 0 0024 12a31 31 0 00-.5-5.8zM9.6 15.5v-7l6.3 3.5-6.3 3.5z"/></svg>
+      Bekijk uitleg op YouTube
+    </a>
+    <button class="btn ghost block mt-8" id="infoEditBtn">Oefening bewerken</button>
+  `);
+  const editBtn = App.$('#infoEditBtn');
+  if (editBtn) editBtn.onclick = () => {
+    App.closeSheet();
+    if (App.openExerciseEditor) App.openExerciseEditor(exerciseId);
+  };
+};
+
 App.gotoRoute = null; // placeholder, real router used via App.navigate
 
 renderRoute.__isCore = true;

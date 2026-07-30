@@ -144,9 +144,14 @@
             <div class="ex-sub">${meta.primaryMuscle}${unitLabel ? ' · ' + unitLabel : ''} · ${t.repsMin}-${t.repsMax} reps · RIR ${t.rir}</div>
             <div class="ex-prev">${App.esc(prevText)}</div>
           </div>
-          <button class="icon-btn" style="width:30px;height:30px;" data-swap="${idx}" title="Alternatief">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 014-4h14"/><path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 01-4 4H3"/></svg>
-          </button>
+          <div style="display:flex;gap:6px;flex:none;">
+            <button class="icon-btn" style="width:30px;height:30px;" data-info="${ex.exerciseId}" title="Uitleg">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+            </button>
+            <button class="icon-btn" style="width:30px;height:30px;" data-swap="${idx}" title="Alternatief">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 014-4h14"/><path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 01-4 4H3"/></svg>
+            </button>
+          </div>
         </div>
         ${prLine ? `<div class="pr-badge">🏅 ${prLine}</div>` : ''}
         <div class="set-table">
@@ -202,6 +207,7 @@
     });
 
     App.$$('[data-swap]').forEach(btn => btn.onclick = () => openSwapSheet(+btn.dataset.swap));
+    App.$$('[data-info]').forEach(btn => btn.onclick = () => App.openExerciseInfo(btn.dataset.info));
 
     const noteEl = App.$('#workoutNote');
     if (noteEl) noteEl.addEventListener('input', () => { session.workoutNote = noteEl.value; });

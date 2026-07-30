@@ -122,8 +122,10 @@
         </div>
         <div class="card mt-12">
           ${filtered.map(e => `<div class="list-row" data-exid="${e.id}" style="cursor:pointer;">
-            <div><div class="l-title">${App.esc(e.name)}</div><div class="l-sub">${e.primaryMuscle} · ${e.location === 'gym' ? 'Gym' : e.location === 'thuis' ? 'Thuis' : 'Beide'}</div></div>
-            <div class="l-val" style="color:var(--text-faint);">›</div>
+            <div style="flex:1;" data-info="${e.id}"><div class="l-title">${App.esc(e.name)}</div><div class="l-sub">${e.primaryMuscle} · ${e.location === 'gym' ? 'Gym' : e.location === 'thuis' ? 'Thuis' : 'Beide'}</div></div>
+            <button class="icon-btn" style="width:30px;height:30px;" data-edit="${e.id}" title="Bewerken">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/></svg>
+            </button>
           </div>`).join('')}
         </div>
       </div>
@@ -131,7 +133,8 @@
     App.$('#btnBack').onclick = () => App.navigate('more');
     App.$('#btnAddEx').onclick = () => openExerciseEditor(null);
     App.$$('.chip[data-f]').forEach(c => c.onclick = () => { exFilter = c.dataset.f; App.screens.exercises(); });
-    App.$$('.list-row[data-exid]').forEach(row => row.onclick = () => openExerciseEditor(row.dataset.exid));
+    App.$$('[data-info]').forEach(el => el.onclick = () => App.openExerciseInfo(el.dataset.info));
+    App.$$('[data-edit]').forEach(btn => btn.onclick = (e) => { e.stopPropagation(); openExerciseEditor(btn.dataset.edit); });
   };
 
   function openExerciseEditor(id) {
@@ -287,4 +290,6 @@
       }
     });
   };
+
+  App.openExerciseEditor = openExerciseEditor;
 })();
