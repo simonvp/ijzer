@@ -110,6 +110,7 @@
         ${plan.type !== 'rest' && !sessions.length ? `<button class="btn primary block" id="btnLogThis">Loggen</button>` : ''}
         ${plan.type !== 'rest' && !sessions.length ? `<button class="btn block" id="btnSkipThis">Overslaan</button>` : ''}
       </div>
+      <button class="btn ghost block mt-8" id="btnOtherThis">Andere training kiezen</button>
     `);
 
     App.$$('.list-row[data-sess]').forEach(row => {
@@ -127,7 +128,7 @@
     if (btnLog) btnLog.onclick = () => {
       App.closeSheet();
       if (plan.type === 'cardio') App.navigate('cardio-log', [dateISO]);
-      else if (plan.type === 'strength') App.navigate('workout', [plan.gymTemplate.id]);
+      else if (plan.type === 'strength') App.navigate('workout', [plan.gymTemplate.id, '', dateISO]);
     };
     const btnSkip = App.$('#btnSkipThis');
     if (btnSkip) btnSkip.onclick = async () => {
@@ -135,6 +136,8 @@
       App.closeSheet();
       renderMonth();
     };
+    const btnOther = App.$('#btnOtherThis');
+    if (btnOther) btnOther.onclick = () => App.openAdHocPicker(dateISO);
   }
 
   function sessionRow(s) {

@@ -21,6 +21,8 @@ const Store = (() => {
     const settings = await DB.get('settings', 'app');
     if (!settings) {
       await seedAll();
+    } else {
+      await syncContent();
     }
     await loadCache();
   }
@@ -31,6 +33,19 @@ const Store = (() => {
     await DB.bulkPut('exercises', Seed.exercises);
     await DB.bulkPut('workoutTemplates', [...Seed.gymTemplates, ...Seed.kettlebellTemplates, Seed.cardioTemplate]);
     await DB.put('meta', { key: 'app', onboardingDone: false, createdAt: Utils.todayISO() });
+  }
+
+  // Keeps an existing install's exercise library and workout templates up to
+  // date with the latest app version, without ever touching sessions,
+  // records, settings, or exercises the person has manually edited.
+  async function syncContent() {
+    const existingExercises = await DB.getAll('exercises');
+    const existingIds = new Set(existingExercises.map(e => e.id));
+    const newExercises = Seed.exercises.filter(e => !existingIds.has(e.id));
+    if (newExercises.length) await DB.bulkPut('exercises', newExercises);
+
+    // Built-in templates aren't user-editable, so it's safe to always refresh them.
+    await DB.bulkPut('workoutTemplates', [...Seed.gymTemplates, ...Seed.kettlebellTemplates, Seed.cardioTemplate]);
   }
 
   async function loadCache() {

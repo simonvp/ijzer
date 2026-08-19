@@ -138,6 +138,7 @@
     return `<div class="override-row">
       <button class="chip-btn" id="btnSkip">Overslaan</button>
       <button class="chip-btn" id="btnMove">Verplaatsen</button>
+      <button class="chip-btn" id="btnOtherWorkout">Andere training</button>
     </div>`;
   }
 
@@ -167,7 +168,9 @@
     if (btnCardio) btnCardio.onclick = () => App.navigate('cardio-log', [dateISO]);
 
     const btnAnyway = App.$('#btnAnyway');
-    if (btnAnyway) btnAnyway.onclick = () => openAdHocPicker(dateISO);
+    if (btnAnyway) btnAnyway.onclick = () => App.openAdHocPicker(dateISO);
+    const btnOtherWorkout = App.$('#btnOtherWorkout');
+    if (btnOtherWorkout) btnOtherWorkout.onclick = () => App.openAdHocPicker(dateISO);
 
     const btnSkip = App.$('#btnSkip');
     if (btnSkip) btnSkip.onclick = async () => {
@@ -183,7 +186,7 @@
       if (sessions[0]) App.navigate('summary', [sessions[0].id]);
     };
     const btnLogAnother = App.$('#btnLogAnother');
-    if (btnLogAnother) btnLogAnother.onclick = () => openAdHocPicker(dateISO);
+    if (btnLogAnother) btnLogAnother.onclick = () => App.openAdHocPicker(dateISO);
   }
 
   function startStrengthFlow(plan, mode) {
@@ -213,28 +216,6 @@
       App.showToast('Training verplaatst');
       App.screens.today();
     });
-  }
-
-  function openAdHocPicker(dateISO) {
-    const gymOpts = Object.values(Store.getGymTemplateByDay ? {} : {});
-    const allGym = Store.getAllExercises ? null : null;
-    const templates = ['upperA', 'lowerA', 'upperB', 'lowerB'].map(k => Store.getGymTemplateByDay(k));
-    App.openSheet(`
-      <h3>Sessie loggen</h3>
-      <p class="text-muted text-sm mt-8">Kies een training om nu te loggen.</p>
-      <div class="card mt-16">
-        ${templates.map(t => `<div class="list-row" data-tpl="${t.id}" style="cursor:pointer;">
-          <div class="l-title">${t.name}</div><div class="l-val">Gym ›</div></div>`).join('')}
-        <div class="list-row" data-cardio="1" style="cursor:pointer;">
-          <div class="l-title">Cardio</div><div class="l-val">›</div></div>
-      </div>
-    `);
-    App.$$('.list-row[data-tpl]').forEach(row => row.onclick = () => {
-      App.closeSheet();
-      App.navigate('workout', [row.dataset.tpl]);
-    });
-    const cardioRow = App.$('.list-row[data-cardio]');
-    if (cardioRow) cardioRow.onclick = () => { App.closeSheet(); App.navigate('cardio-log', [dateISO]); };
   }
 
   function getRecentRecords() {

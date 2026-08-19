@@ -26,6 +26,8 @@ const Seed = (() => {
     { id: 'ex_standing_calf_raise', name: 'Standing Calf Raise', category: 'Isolatie', primaryMuscle: 'Kuiten', secondaryMuscles: [], equipment: 'Machine', location: 'gym', type: 'isolatie', weightUnit: 'machine', defaultReps: '10-20', defaultRir: '0-1', defaultRest: 60, instructions: 'Volledige range: diepe stretch tot volledig op de tenen.', cues: 'Even pauzeren bovenaan.', mistakes: 'Halve range.', alternatives: [] },
     { id: 'ex_cable_crunch', name: 'Cable Crunch', category: 'Core', primaryMuscle: 'Buikspieren', secondaryMuscles: [], equipment: 'Kabelmachine', location: 'gym', type: 'isolatie', weightUnit: 'machine', defaultReps: '10-15', defaultRir: '1-2', defaultRest: 60, instructions: 'Op de knieën, ronden vanuit de buikspieren naar beneden.', cues: 'Heupen stil houden, alleen de romp buigt.', mistakes: 'Met de armen trekken.', alternatives: ['ex_reverse_crunch'] },
     { id: 'ex_reverse_crunch', name: 'Reverse Crunch', category: 'Core', primaryMuscle: 'Buikspieren', secondaryMuscles: [], equipment: 'Mat', location: 'beide', type: 'isolatie', weightUnit: 'bodyweight', defaultReps: '10-15', defaultRir: '1-2', defaultRest: 60, instructions: 'Bekken optillen richting de ribben, benen gebogen.', cues: 'Traag en gecontroleerd.', mistakes: 'Momentum gebruiken.', alternatives: ['ex_cable_crunch'] },
+    { id: 'ex_pallof_press', name: 'Pallof Press', category: 'Core', primaryMuscle: 'Buikspieren (anti-rotatie)', secondaryMuscles: ['Schouders', 'Core-stabiliteit'], equipment: 'Kabelmachine', location: 'gym', type: 'compound', weightUnit: 'machine', defaultReps: '10-12 per kant', defaultRir: '1-2', defaultRest: 60, instructions: 'Kabel opzij van het lichaam, handvat recht voor de borst wegduwen zonder dat de romp meedraait.', cues: 'Buikspieren aangespannen, rustige ademhaling.', mistakes: 'Romp laten meedraaien met de duw.', alternatives: [] },
+    { id: 'ex_suitcase_carry', name: 'Suitcase Carry', category: 'Core', primaryMuscle: 'Buikspieren (lateraal)', secondaryMuscles: ['Grip', 'Schouders'], equipment: 'Dumbbell', location: 'gym', type: 'compound', weightUnit: 'totaal', defaultReps: '20-30 stappen per kant', defaultRir: '0-1', defaultRest: 60, instructions: 'Eén dumbbell aan één kant dragen, rechtop en met gelijke stappen lopen zonder opzij te hellen.', cues: 'Schouders neutraal, core stevig aangespannen.', mistakes: 'Naar de kant zonder gewicht hellen.', alternatives: [] },
 
     // Upper B
     { id: 'ex_ohp', name: 'Standing Barbell Overhead Press', category: 'Push', primaryMuscle: 'Schouders', secondaryMuscles: ['Triceps', 'Core'], equipment: 'Barbell', location: 'gym', type: 'compound', weightUnit: 'barbell', defaultReps: '5-8', defaultRir: '1-2', defaultRest: 150, instructions: 'Stang vanaf de schouders recht naar boven drukken.', cues: 'Billen aanspannen, hoofd licht door onder de stang.', mistakes: 'Overmatig doorbuigen in de onderrug.', alternatives: [] },
@@ -69,6 +71,7 @@ const Seed = (() => {
     { id: 'kb_goblet_squat_slow', name: 'Goblet Squat (3 sec zakken)', category: 'Squat', primaryMuscle: 'Quadriceps', secondaryMuscles: ['Bilspieren'], equipment: 'Kettlebell', location: 'thuis', type: 'compound', weightUnit: 'kettlebell', defaultReps: '10', defaultRest: 0, instructions: 'Zelfde als goblet squat, maar 3 seconden gecontroleerd zakken.', cues: 'Tempo tellen tijdens het zakken.', mistakes: 'Te snel zakken.', alternatives: [] },
     { id: 'kb_glute_bridge', name: 'Glute Bridge met Kettlebell', category: 'Hinge', primaryMuscle: 'Bilspieren', secondaryMuscles: ['Hamstrings'], equipment: 'Kettlebell', location: 'thuis', type: 'isolatie', weightUnit: 'kettlebell', defaultReps: '15', defaultRest: 0, instructions: 'Kettlebell op de heupen, bekken optillen.', cues: 'Bovenaan de bilspieren aanspannen.', mistakes: 'Doorbuigen in de onderrug.', alternatives: [] },
     { id: 'kb_suitcase_march', name: 'Suitcase March', category: 'Core', primaryMuscle: 'Buikspieren (lateraal)', secondaryMuscles: ['Heupen'], equipment: 'Kettlebell', location: 'thuis', type: 'isolatie', weightUnit: 'kettlebell', defaultReps: '30-45 sec per kant', defaultRest: 0, instructions: 'Kettlebell aan één kant, ter plaatse stappen zonder opzij te hellen.', cues: 'Romp recht houden.', mistakes: 'Naar de kant van de kettlebell hellen.', alternatives: [] },
+    { id: 'kb_renegade_row', name: 'Renegade Row', category: 'Core/Pull', primaryMuscle: 'Buikspieren', secondaryMuscles: ['Bovenrug', 'Schouders'], equipment: 'Kettlebell(s)', location: 'thuis', type: 'compound', weightUnit: 'kettlebell', defaultReps: '6-8 per arm', defaultRest: 0, instructions: 'Plankpositie met handen op de kettlebells, om beurten één kettlebell optrekken naar de heup zonder dat de heupen kantelen.', cues: 'Voeten iets breder voor extra stabiliteit.', mistakes: 'Heupen laten meedraaien bij het optrekken.', alternatives: [] },
 
     // Cardio (generic placeholder for logging)
     { id: 'ex_cardio_session', name: 'Cardiosessie', category: 'Cardio', primaryMuscle: 'Cardiovasculair', secondaryMuscles: [], equipment: 'Variabel', location: 'beide', type: 'cardio', weightUnit: 'bodyweight', defaultReps: '45-75 min', defaultRest: 0, instructions: 'Fietsen, zwemmen, rustig lopen, wandelen met helling of vrije cardio, hoofdzakelijk zone 2.', cues: 'Niet volledig uitputtend.', mistakes: 'Te hoge intensiteit die krachtherstel hindert.', alternatives: [] },
@@ -90,6 +93,7 @@ const Seed = (() => {
         { exerciseId: 'ex_lateral_raise', sets: 3, repsMin: 12, repsMax: 20, rir: '0-2', restSec: 60, essential: true },
         { exerciseId: 'ex_triceps_pushdown', sets: 2, repsMin: 10, repsMax: 15, rir: '0-1', restSec: 60, essential: false },
         { exerciseId: 'ex_incline_db_curl', sets: 2, repsMin: 10, repsMax: 15, rir: '0-1', restSec: 60, essential: false },
+        { exerciseId: 'ex_pallof_press', sets: 2, repsMin: 10, repsMax: 12, rir: '1-2', restSec: 60, essential: false },
       ]
     },
     {
@@ -102,6 +106,7 @@ const Seed = (() => {
         { exerciseId: 'ex_leg_curl', sets: 3, repsMin: 10, repsMax: 15, rir: '0-2', restSec: 75, essential: true },
         { exerciseId: 'ex_standing_calf_raise', sets: 3, repsMin: 10, repsMax: 20, rir: '0-1', restSec: 60, essential: false },
         { exerciseId: 'ex_cable_crunch', sets: 3, repsMin: 10, repsMax: 15, rir: '1-2', restSec: 60, essential: false },
+        { exerciseId: 'ex_suitcase_carry', sets: 2, repsMin: 20, repsMax: 30, rir: '0-1', restSec: 60, essential: false },
       ]
     },
     {
@@ -116,6 +121,7 @@ const Seed = (() => {
         { exerciseId: 'ex_rear_delt_fly', sets: 2, repsMin: 12, repsMax: 20, rir: '0-2', restSec: 60, essential: false },
         { exerciseId: 'ex_cable_curl', sets: 2, repsMin: 10, repsMax: 15, rir: '0-1', restSec: 60, essential: false },
         { exerciseId: 'ex_ov_triceps_ext', sets: 2, repsMin: 10, repsMax: 15, rir: '0-1', restSec: 60, essential: false },
+        { exerciseId: 'ex_ab_wheel', sets: 2, repsMin: 8, repsMax: 15, rir: '1-2', restSec: 60, essential: false },
       ]
     },
     {
@@ -129,6 +135,7 @@ const Seed = (() => {
         { exerciseId: 'ex_leg_extension', sets: 2, repsMin: 12, repsMax: 15, rir: '0-1', restSec: 60, essential: false },
         { exerciseId: 'ex_seated_calf_raise', sets: 3, repsMin: 12, repsMax: 20, rir: '0-1', restSec: 60, essential: false },
         { exerciseId: 'ex_ab_wheel', sets: 3, repsMin: 8, repsMax: 15, rir: '1-2', restSec: 60, essential: false },
+        { exerciseId: 'ex_pallof_press', sets: 2, repsMin: 10, repsMax: 12, rir: '1-2', restSec: 60, essential: false },
       ]
     },
   ];
@@ -144,6 +151,7 @@ const Seed = (() => {
         { exerciseId: 'kb_strict_press', reps: '8 per arm' },
         { exerciseId: 'kb_pushup', reps: '8-15' },
         { exerciseId: 'kb_halo', reps: '8 per richting' },
+        { exerciseId: 'kb_renegade_row', reps: '6 per arm' },
       ]
     },
     {
@@ -165,6 +173,7 @@ const Seed = (() => {
         { exerciseId: 'kb_reverse_lunge', reps: '8 per been' },
         { exerciseId: 'kb_sl_rdl', reps: '8 per been' },
         { exerciseId: 'kb_calf_raise', reps: '20' },
+        { exerciseId: 'kb_suitcase_march', reps: '30-45 sec per kant' },
       ]
     },
     {
@@ -186,6 +195,7 @@ const Seed = (() => {
         { exerciseId: 'kb_tall_kneeling_press', reps: '8 per arm' },
         { exerciseId: 'kb_curl', reps: '10-12' },
         { exerciseId: 'kb_ov_triceps_ext', reps: '10-12' },
+        { exerciseId: 'kb_renegade_row', reps: '6 per arm' },
       ]
     },
     {

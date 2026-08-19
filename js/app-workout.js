@@ -16,7 +16,7 @@
 
   // ---------------------------------------------------------------- entry
   App.screens.workout = async function (params) {
-    const [templateId, sessionId] = params;
+    const [templateId, sessionId, dateOverride] = params;
     fullTemplate = Store.getGymTemplate(templateId);
     if (!fullTemplate) { App.navigate('today'); return; }
     is80 = false;
@@ -26,16 +26,16 @@
     if (sessionId) {
       session = await Store.getSession(sessionId);
     } else {
-      session = newSessionFromTemplate(fullTemplate);
+      session = newSessionFromTemplate(fullTemplate, dateOverride || Utils.todayISO());
       startedAt = Date.now();
     }
     render();
   };
 
-  function newSessionFromTemplate(tpl) {
+  function newSessionFromTemplate(tpl, dateISO) {
     return {
       id: null,
-      date: Utils.todayISO(),
+      date: dateISO || Utils.todayISO(),
       type: 'gym',
       templateId: tpl.id,
       name: tpl.name,

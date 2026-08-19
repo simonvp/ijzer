@@ -15,10 +15,13 @@
   let startedAt = null;
   let finished = false;
 
+  let sessionDate = null;
+
   App.screens.kettlebell = function (params) {
-    const [templateId] = params;
+    const [templateId, dateOverride] = params;
     tpl = Store.getKbTemplatesByDayOrId ? null : findTemplate(templateId);
     if (!tpl) { App.navigate('today'); return; }
+    sessionDate = dateOverride || Utils.todayISO();
     const settings = Store.getSettings();
     weightKg = settings.defaultKettlebellWeight || (settings.kettlebells && settings.kettlebells[0]) || 12;
     exerciseWeights = {};
@@ -169,7 +172,7 @@
     App.$('#btnSaveKb').onclick = async () => {
       const uniform = allSameWeight();
       const s = {
-        id: null, date: Utils.todayISO(), type: 'kettlebell', name: tpl.name, templateId: tpl.id,
+        id: null, date: sessionDate || Utils.todayISO(), type: 'kettlebell', name: tpl.name, templateId: tpl.id,
         variant: tpl.variant, status: 'completed',
         durationSec: (parseFloat(App.$('#fDuration').value) || 0) * 60,
         kettlebell: {
