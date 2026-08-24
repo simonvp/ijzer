@@ -154,7 +154,11 @@
   function planLabel(plan) {
     if (plan.type === 'rest') return 'Rustdag';
     if (plan.type === 'cardio') return 'Cardio';
-    if (plan.type === 'strength') return plan.gymTemplate.name;
+    if (plan.type === 'strength') return plan.gymTemplate ? plan.gymTemplate.name : 'Gym';
+    if (plan.type === 'kettlebell_only') {
+      const tpl = plan.kettlebell && plan.kettlebell.standard;
+      return tpl ? tpl.name : 'Kettlebell';
+    }
     return '–';
   }
 })();

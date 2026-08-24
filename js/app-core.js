@@ -180,15 +180,26 @@ App.youtubeSearchUrl = function (name) {
 // Lets the person pick ANY split day for a given date, regardless of what's
 // scheduled — used for catching up a missed session on another day.
 App.openAdHocPicker = function (dateISO) {
-  const days = [
-    ['upperA', 'Upper A'], ['lowerA', 'Lower A'], ['upperB', 'Upper B'], ['lowerB', 'Lower B'],
+  // Gym days (have gym templates)
+  const gymDays = [
+    ['push', 'Push — Borst · Schouders · Triceps'],
+    ['pull', 'Pull — Rug · Biceps · Achterste schouders'],
+    ['legs', 'Legs — Quads · Hamstrings · Kuiten'],
   ];
+  // KB-only days
+  const kbDays = [
+    ['kbUpper', 'KB Upper — Kracht & Stabiliteit'],
+    ['kbLower', 'KB Lower — Hip Power & Balans'],
+  ];
+
   App.openSheet(`
     <h3>Training kiezen</h3>
     <p class="text-muted text-sm mt-8">Voor ${Utils.formatDateLong(dateISO)} — kies eender welke training, ongeacht wat er gepland staat.</p>
     <div class="card mt-16">
-      ${days.map(([key, label]) => `<div class="list-row" data-day="${key}" data-label="${label}" style="cursor:pointer;">
-        <div class="l-title">${label}</div><div class="l-val" style="color:var(--text-faint);">›</div></div>`).join('')}
+      ${gymDays.map(([key, label]) => `<div class="list-row" data-day="${key}" data-label="${App.esc(label)}" style="cursor:pointer;">
+        <div><div class="l-title">${App.esc(label.split(' — ')[0])}</div><div class="l-sub">${App.esc(label.split(' — ')[1] || '')}</div></div><div class="l-val" style="color:var(--text-faint);">›</div></div>`).join('')}
+      ${kbDays.map(([key, label]) => `<div class="list-row" data-kbday="${key}" data-label="${App.esc(label)}" style="cursor:pointer;">
+        <div><div class="l-title" style="color:var(--kb2,#a882f0);">${App.esc(label.split(' — ')[0])}</div><div class="l-sub">${App.esc(label.split(' — ')[1] || '')}</div></div><div class="l-val" style="color:var(--text-faint);">›</div></div>`).join('')}
       <div class="list-row" data-cardio="1" style="cursor:pointer;">
         <div class="l-title">Cardio</div><div class="l-val" style="color:var(--text-faint);">›</div></div>
     </div>
@@ -196,30 +207,37 @@ App.openAdHocPicker = function (dateISO) {
   App.$$('.list-row[data-day]').forEach(row => row.onclick = () => {
     App.openVariantPicker(dateISO, row.dataset.day, row.dataset.label);
   });
+  App.$$('.list-row[data-kbday]').forEach(row => row.onclick = () => {
+    App.openKBDayPicker(dateISO, row.dataset.kbday, row.dataset.label);
+  });
   const cardioRow = App.$('.list-row[data-cardio]');
   if (cardioRow) cardioRow.onclick = () => { App.closeSheet(); App.navigate('cardio-log', [dateISO]); };
 };
 
+// Gym day — show gym start option
 App.openVariantPicker = function (dateISO, dayKey, label) {
   const gymTpl = Store.getGymTemplateByDay(dayKey);
-  const kbTpls = Store.getKbTemplatesByDay(dayKey);
+  if (!gymTpl) { App.openAdHocPicker(dateISO); return; }
   App.openSheet(`
-    <h3>${App.esc(label)}</h3>
+    <h3>${App.esc(gymTpl.name)}</h3>
     <p class="text-muted text-sm mt-8">${Utils.formatDateLong(dateISO)}</p>
     <div class="card mt-16">
       <div class="list-row" data-variant="gym" style="cursor:pointer;">
-        <div><div class="l-title">Volledige gymsessie</div><div class="l-sub">50-70 min</div></div><div class="l-val" style="color:var(--text-faint);">›</div></div>
-      <div class="list-row" data-variant="kb-std" style="cursor:pointer;">
-        <div><div class="l-title">Kettlebell (standaard)</div><div class="l-sub">~${kbTpls.standard ? kbTpls.standard.durationMin : 25} min</div></div><div class="l-val" style="color:var(--text-faint);">›</div></div>
-      <div class="list-row" data-variant="kb-exp" style="cursor:pointer;">
-        <div><div class="l-title">Kettlebell (express)</div><div class="l-sub">~${kbTpls.express ? kbTpls.express.durationMin : 15} min</div></div><div class="l-val" style="color:var(--text-faint);">›</div></div>
+        <div><div class="l-title">Volledige gymsessie</div><div class="l-sub">~60 min · ${gymTpl.exercises.length} oefeningen</div></div><div class="l-val" style="color:var(--text-faint);">›</div></div>
     </div>
     <button class="btn ghost block mt-12" id="btnBackToDayPick">‹ Terug</button>
   `);
   App.$('[data-variant="gym"]').onclick = () => { App.closeSheet(); App.navigate('workout', [gymTpl.id, '', dateISO]); };
-  App.$('[data-variant="kb-std"]').onclick = () => { App.closeSheet(); App.navigate('kettlebell', [kbTpls.standard.id, dateISO]); };
-  App.$('[data-variant="kb-exp"]').onclick = () => { App.closeSheet(); App.navigate('kettlebell', [kbTpls.express.id, dateISO]); };
   App.$('#btnBackToDayPick').onclick = () => App.openAdHocPicker(dateISO);
+};
+
+// KB-only day picker
+App.openKBDayPicker = function (dateISO, dayKey, label) {
+  const kbTpls = Store.getKbTemplatesByDay(dayKey);
+  const std = kbTpls.standard;
+  if (!std) { App.closeSheet(); return; }
+  App.closeSheet();
+  App.navigate('kettlebell', [std.id, dateISO]);
 };
 
 App.openExerciseInfo = function (exerciseId) {

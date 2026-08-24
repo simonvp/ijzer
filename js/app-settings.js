@@ -247,7 +247,8 @@
     const sched = Store.getSchedule();
     const dayLabels = { mon: 'Maandag', tue: 'Dinsdag', wed: 'Woensdag', thu: 'Donderdag', fri: 'Vrijdag', sat: 'Zaterdag', sun: 'Zondag' };
     const opts = [
-      ['upperA', 'Upper A'], ['lowerA', 'Lower A'], ['upperB', 'Upper B'], ['lowerB', 'Lower B'],
+      ['push', 'Push (gym)'], ['pull', 'Pull (gym)'], ['legs', 'Legs (gym)'],
+      ['kbUpper', 'KB Upper'], ['kbLower', 'KB Lower'],
       ['cardio', 'Cardio'], ['rest', 'Rust'],
     ];
     App.render(`

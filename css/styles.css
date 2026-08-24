@@ -376,6 +376,80 @@ input:focus, select:focus, textarea:focus { outline: 2px solid var(--accent); ou
 .w-full { width: 100%; }
 .hidden { display: none !important; }
 
+/* ---------- Volume panel (app-progress.js) ---------- */
+:root {
+  --gym-orange: #c96a2a;
+  --gym-teal: #3f8f6a;
+  --kb: #7c5cbf;
+  --kb2: #a882f0;
+}
+[data-theme="dark"] {
+  --gym-orange: #e8894a;
+  --gym-teal: #5cb889;
+  --kb: #9b7de0;
+  --kb2: #c4a8ff;
+}
+
+.vol-list { display: flex; flex-direction: column; gap: 14px; margin-top: 4px; }
+
+.vol-row { display: flex; flex-direction: column; gap: 4px; }
+
+.vol-label {
+  display: flex; align-items: baseline; justify-content: space-between; gap: 8px;
+}
+.vol-name { font-size: 14px; font-weight: 600; }
+.vol-count { font-size: 13px; color: var(--text-muted); font-variant-numeric: tabular-nums; }
+
+.vol-bar-wrap { position: relative; height: 10px; }
+
+.vol-bar-track {
+  position: absolute; inset: 0;
+  background: var(--surface-2);
+  border-radius: 5px;
+  overflow: visible;
+}
+
+.vol-bar-gym {
+  position: absolute; left: 0; top: 0; bottom: 0;
+  border-radius: 5px;
+  transition: width .35s ease;
+}
+.vol-bar-gym.intensity { background: var(--gym-orange); }
+.vol-bar-gym.volume    { background: var(--gym-teal); }
+
+.vol-bar-kb {
+  position: absolute; top: 0; bottom: 0;
+  border-radius: 0 5px 5px 0;
+  transition: left .35s ease, width .35s ease;
+}
+.vol-bar-kb.intensity { background: color-mix(in srgb, var(--kb) 80%, var(--gym-orange)); }
+.vol-bar-kb.volume    { background: color-mix(in srgb, var(--kb) 80%, var(--gym-teal)); }
+
+/* Fallback for browsers without color-mix */
+@supports not (color: color-mix(in srgb, red, blue)) {
+  .vol-bar-kb { background: var(--kb); }
+}
+
+.vol-target-line {
+  position: absolute; top: -3px; bottom: -3px; width: 2px;
+  background: var(--text); border-radius: 1px; opacity: 0.5;
+  z-index: 2;
+}
+
+.vol-range { font-size: 11px; color: var(--text-faint); text-align: right; margin-top: 1px; }
+
+.vol-legend {
+  display: flex; flex-wrap: wrap; gap: 8px 16px;
+  margin-bottom: 14px; padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+.vol-legend span { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-muted); }
+.vol-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.vol-dot.orange { background: var(--gym-orange); }
+.vol-dot.teal   { background: var(--gym-teal); }
+.vol-dot.purple { background: var(--kb); }
+.vol-dot.target { background: var(--text); opacity: 0.5; }
+
 @media (min-width: 760px) {
   #app { padding-bottom: 40px; margin-left: 220px; max-width: 640px; }
   .bottom-nav {

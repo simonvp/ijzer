@@ -4,9 +4,12 @@
 
 (() => {
   let selectedTime = null; // '15' | '25' | '45'
-  let selectedMode = null; // 'express' | 'kettlebell' | 'gym' (manual override)
+  let selectedMode = null; // 'gym' (manual override)
 
-  const WORKOUT_LABELS = { upperA: 'Upper A', lowerA: 'Lower A', upperB: 'Upper B', lowerB: 'Lower B' };
+  const WORKOUT_LABELS = {
+    push: 'Push', pull: 'Pull', legs: 'Legs',
+    kbUpper: 'KB Upper', kbLower: 'KB Lower',
+  };
 
   App.screens.today = async function () {
     const meta = await Store.getMeta();
@@ -45,10 +48,10 @@
         ${renderHero(plan, dateISO, hasCompletedToday, doneToday)}
 
         <div class="stat-grid">
-          <div class="stat-box"><div class="val num">${weekSum.strengthDone}/4</div><div class="label">Krachttrainingen deze week</div></div>
-          <div class="stat-box"><div class="val num">${weekSum.cardioDone}/1</div><div class="label">Cardiosessies deze week</div></div>
+          <div class="stat-box"><div class="val num">${weekSum.strengthDone}/5</div><div class="label">Trainingen deze week</div></div>
           <div class="stat-box"><div class="val num">${streak}</div><div class="label">Dagenstreak</div></div>
           <div class="stat-box"><div class="val num">${lastBW ? Utils.fmtKg(lastBW.weight) : '–'}</div><div class="label">Laatste gewicht</div></div>
+          <div class="stat-box"><div class="val num">${weekSum.complete ? '✓' : weekSum.strengthDone + '/5'}</div><div class="label">Weekdoel</div></div>
         </div>
 
         ${recentRecords.length ? `
@@ -58,7 +61,7 @@
             <div class="list-row">
               <div><div class="l-title">${App.esc(App.exerciseName(r.exerciseId))}</div>
               <div class="l-sub">${r.type === 'maxWeight' ? 'Zwaarste gewicht' : r.type === 'max1RM' ? 'Geschat 1RM' : 'Meeste volume'}</div></div>
-              <div class="l-val">${r.type === 'max1RM' ? Utils.fmtKg(r.value) : Utils.fmtKg(r.value)}</div>
+              <div class="l-val">${Utils.fmtKg(r.value)}</div>
             </div>`).join('')}
         </div>` : ''}
 
@@ -83,11 +86,12 @@
   function renderHero(plan, dateISO, hasCompletedToday, doneToday) {
     if (hasCompletedToday) {
       const s = doneToday[0];
+      const typeLabel = s.type === 'gym' ? 'Gymsessie' : s.type === 'kettlebell' ? 'Kettlebellsessie' : 'Cardiosessie';
       return `
         <div class="hero-card">
           <div class="eyebrow">Voltooid vandaag</div>
           <h2>${App.esc(s.name || labelForPlan(plan))}</h2>
-          <div class="meta">${s.type === 'gym' ? 'Gymsessie' : s.type === 'kettlebell' ? 'Kettlebellsessie' : 'Cardiosessie'} · ${s.durationSec ? Utils.fmtDurationLong(s.durationSec) : ''}</div>
+          <div class="meta">${typeLabel}${s.durationSec ? ' · ' + Utils.fmtDurationLong(s.durationSec) : ''}</div>
           <button class="start-btn" id="btnViewSummary">Bekijk samenvatting</button>
           <div class="override-row">
             <button class="chip-btn" id="btnLogAnother">+ Nog een sessie loggen</button>
@@ -120,18 +124,42 @@
         </div>`;
     }
 
-    // strength day
+    // KB-only day (kbUpper / kbLower)
+    if (plan.type === 'kettlebell_only') {
+      const kbT = plan.kettlebell.standard;
+      if (!kbT) return renderRestFallback();
+      return `
+        <div class="hero-card" style="--hero-accent: var(--kb, #7c5cbf);">
+          <div class="eyebrow" style="color:var(--kb2, #a882f0);">Kettlebell dag</div>
+          <h2>${App.esc(kbT.name)}</h2>
+          <div class="meta">~${kbT.durationMin} min · ${kbT.items.length} oefeningen</div>
+          <div class="focus-tags">
+            ${kbT.items.slice(0, 4).map(it => {
+              const ex = Store.getExercise(it.exerciseId);
+              return ex ? `<span class="hero-tag" style="border-color:var(--kb-bg2,rgba(124,92,191,.22));color:var(--kb2,#a882f0);">${App.esc(ex.name)}</span>` : '';
+            }).join('')}
+          </div>
+          <button class="start-btn" id="btnStartKB" style="background:var(--kb, #7c5cbf);">Start KB workout</button>
+          ${overrideRow()}
+        </div>`;
+    }
+
+    // Strength / gym day
     const gymT = plan.gymTemplate;
     return `
       <div class="hero-card">
         <div class="eyebrow">Vandaag</div>
-        <h2>${gymT.name}</h2>
+        <h2>${App.esc(gymT.name)}</h2>
         <div class="meta">Hoeveel tijd heb je?</div>
         <div class="focus-tags">${gymT.focus.map(f => `<span class="hero-tag">${App.esc(f)}</span>`).join('')}</div>
         ${App.timePickerHtml(selectedTime)}
         <button class="start-btn" id="btnStart">Start workout</button>
         ${overrideRow()}
       </div>`;
+  }
+
+  function renderRestFallback() {
+    return `<div class="hero-card"><div class="eyebrow">Vandaag</div><h2>Rustdag</h2><div class="meta">Geen data gevonden voor vandaag.</div></div>`;
   }
 
   function overrideRow() {
@@ -145,6 +173,7 @@
   function labelForPlan(plan) {
     if (plan.type === 'cardio') return 'Cardio';
     if (plan.type === 'strength' && plan.gymTemplate) return plan.gymTemplate.name;
+    if (plan.type === 'kettlebell_only' && plan.kettlebell && plan.kettlebell.standard) return plan.kettlebell.standard.name;
     return 'Training';
   }
 
@@ -161,9 +190,15 @@
 
     const btnStart = App.$('#btnStart');
     if (btnStart) btnStart.onclick = () => {
-      const mode = selectedTime ? App.suggestFromTime(selectedTime) : 'gym';
-      startStrengthFlow(plan, mode);
+      App.navigate('workout', [plan.gymTemplate.id]);
     };
+
+    const btnStartKB = App.$('#btnStartKB');
+    if (btnStartKB) btnStartKB.onclick = () => {
+      const tpl = plan.kettlebell.standard;
+      App.navigate('kettlebell', [tpl.id]);
+    };
+
     const btnCardio = App.$('#btnStartCardio');
     if (btnCardio) btnCardio.onclick = () => App.navigate('cardio-log', [dateISO]);
 
@@ -187,16 +222,6 @@
     };
     const btnLogAnother = App.$('#btnLogAnother');
     if (btnLogAnother) btnLogAnother.onclick = () => App.openAdHocPicker(dateISO);
-  }
-
-  function startStrengthFlow(plan, mode) {
-    if (mode === 'gym') {
-      App.navigate('workout', [plan.gymTemplate.id]);
-    } else {
-      const variant = mode === 'express' ? 'express' : 'standard';
-      const tpl = plan.kettlebell[variant] || plan.kettlebell.standard;
-      App.navigate('kettlebell', [tpl.id]);
-    }
   }
 
   function openMoveSheet(dateISO, plan) {
@@ -231,9 +256,10 @@
   }
 
   function motivationalText(weekSum, streak) {
-    if (weekSum.complete) return 'Weekdoel gehaald. Rustig verder bouwen.';
+    if (weekSum.complete) return 'Weekdoel gehaald — Push · Pull · Legs · KB Upper · KB Lower ✓';
     if (streak >= 5) return 'Mooie consistentie deze week.';
     if (weekSum.strengthDone === 0) return 'Eerste sessie van de week — gewoon beginnen.';
+    if (weekSum.strengthDone >= 3) return 'Goed bezig. Nog ' + (5 - weekSum.strengthDone) + ' sessie(s) te gaan.';
     return 'Stap voor stap. Elke sessie telt.';
   }
 
@@ -250,7 +276,7 @@
           ${moreRow('settings', 'Instellingen', 'Profiel, eenheden, materiaal')}
           ${moreRow('dataio', 'Export & import', 'Back-up van al je data')}
         </div>
-        <p class="text-muted text-sm" style="text-align:center;margin-top:24px;">${App.esc(settings.name || '')} · IJzer v1.0</p>
+        <p class="text-muted text-sm" style="text-align:center;margin-top:24px;">${App.esc(settings.name || '')} · IJzer v2.0</p>
       </div>
     `);
     App.$$('.list-row[data-route]').forEach(row => row.onclick = () => App.navigate(row.dataset.route));

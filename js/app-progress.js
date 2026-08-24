@@ -11,7 +11,7 @@
       <div class="screen">
         <div class="topbar"><h1>Progressie</h1></div>
         <div class="chip-row">
-          ${tab('overzicht', 'Overzicht')}${tab('oefeningen', 'Oefeningen')}${tab('records', 'Records')}${tab('consistentie', 'Consistentie')}
+          ${tab('overzicht', 'Overzicht')}${tab('volume', 'Volume')}${tab('oefeningen', 'Oefeningen')}${tab('records', 'Records')}${tab('consistentie', 'Consistentie')}
         </div>
         <div id="progBody" class="mt-16"></div>
       </div>
@@ -19,6 +19,7 @@
     App.$$('.chip[data-tab]').forEach(c => c.onclick = () => { activeTab = c.dataset.tab; App.screens.progress(); });
     const body = document.getElementById('progBody');
     if (activeTab === 'overzicht') body.innerHTML = await overviewHtml();
+    if (activeTab === 'volume') body.innerHTML = await volumeHtml();
     if (activeTab === 'oefeningen') body.innerHTML = exerciseListHtml();
     if (activeTab === 'records') body.innerHTML = recordsHtml();
     if (activeTab === 'consistentie') body.innerHTML = await consistencyHtml();
@@ -45,9 +46,174 @@
         <div class="stat-box"><div class="val num">${gym}/${kb}</div><div class="label">Gym / Kettlebell</div></div>
         <div class="stat-box"><div class="val num">${Utils.fmtDurationLong(totalDurationSec)}</div><div class="label">Totale trainingstijd</div></div>
         <div class="stat-box"><div class="val num">${streak}</div><div class="label">Huidige streak (dagen)</div></div>
-        <div class="stat-box"><div class="val num">${weekSum.strengthDone}/4</div><div class="label">Deze week (kracht)</div></div>
+        <div class="stat-box"><div class="val num">${weekSum.strengthDone}/5</div><div class="label">Deze week (trainingen)</div></div>
       </div>
     `;
+  }
+
+  // ──────────────────────────────────────────────────────────────── volume tab
+  // Weekly muscle volume panel: shows planned + actual sets per muscle group
+  // for the current week, with color coding per method.
+
+  // Muscle set contributions per exercise (primary sets only)
+  const MUSCLE_CONTRIB = {
+    // Push day
+    'ex_incline_bb_bench':    { 'Borst': 1 },
+    'ex_incline_db_bench':    { 'Borst': 1 },
+    'ex_flat_db_bench':       { 'Borst': 1 },
+    'ex_chest_press_machine': { 'Borst': 1 },
+    'ex_ohp':                 { 'Schouders': 1 },
+    'ex_db_shoulder_press':   { 'Schouders': 1 },
+    'ex_lateral_raise':       { 'Schouders': 1 },
+    'ex_triceps_pushdown':    { 'Triceps': 1 },
+    'ex_ov_triceps_ext':      { 'Triceps': 1 },
+    // Pull day
+    'ex_lat_pulldown':        { 'Lats': 1 },
+    'ex_assisted_pullup':     { 'Lats': 1 },
+    'ex_chest_supported_row': { 'Bovenrug': 1 },
+    'ex_oneam_db_row':        { 'Bovenrug': 1 },
+    'ex_seated_cable_row':    { 'Bovenrug': 1 },
+    'ex_face_pull':           { 'Schouders': 0.5 },
+    'ex_rear_delt_fly':       { 'Schouders': 0.5 },
+    'ex_incline_db_curl':     { 'Biceps': 1 },
+    'ex_cable_curl':          { 'Biceps': 1 },
+    // Legs day
+    'ex_back_squat':          { 'Quads': 1, 'Glutes': 0.5 },
+    'ex_hack_squat':          { 'Quads': 1 },
+    'ex_rdl':                 { 'Hamstrings': 1, 'Glutes': 0.5 },
+    'ex_bulgarian_split_squat': { 'Quads': 1, 'Glutes': 0.5 },
+    'ex_leg_curl':            { 'Hamstrings': 1 },
+    'ex_seated_leg_curl':     { 'Hamstrings': 1 },
+    'ex_leg_extension':       { 'Quads': 1 },
+    'ex_standing_calf_raise': { 'Kuiten': 1 },
+    'ex_seated_calf_raise':   { 'Kuiten': 1 },
+  };
+
+  // KB day set contributions (fixed per completed session)
+  const KB_UPPER_CONTRIB = { 'Schouders': 3, 'Bovenrug': 3, 'Lats': 1 };
+  const KB_LOWER_CONTRIB = { 'Quads': 3, 'Hamstrings': 7, 'Glutes': 7, 'Kuiten': 3 };
+
+  // Target ranges and metadata per muscle
+  const MUSCLES = [
+    { name: 'Borst',      min: 5, max: 12, method: 'intensity', days: ['push'] },
+    { name: 'Schouders',  min: 5, max: 12, method: 'intensity', days: ['push', 'pull', 'kbUpper'] },
+    { name: 'Triceps',    min: 5, max: 12, method: 'intensity', days: ['push'] },
+    { name: 'Lats',       min: 5, max: 12, method: 'intensity', days: ['pull', 'kbUpper'] },
+    { name: 'Bovenrug',   min: 5, max: 12, method: 'intensity', days: ['pull', 'kbUpper'] },
+    { name: 'Biceps',     min: 5, max: 12, method: 'intensity', days: ['pull'] },
+    { name: 'Quads',      min: 12, max: 20, method: 'volume',   days: ['legs', 'kbLower'] },
+    { name: 'Hamstrings', min: 12, max: 20, method: 'volume',   days: ['legs', 'kbLower'] },
+    { name: 'Glutes',     min: 12, max: 20, method: 'volume',   days: ['legs', 'kbLower'] },
+    { name: 'Kuiten',     min: 10, max: 20, method: 'volume',   days: ['legs', 'kbLower'] },
+  ];
+
+  async function volumeHtml() {
+    const weekSum = await Store.getWeekSummary(Utils.todayISO());
+    const sessions = weekSum.sessions.filter(s => s.status === 'completed' || s.status === 'partial');
+
+    // Tally actual sets per muscle from gym sessions
+    const actual = {};
+    MUSCLES.forEach(m => { actual[m.name] = { gym: 0, kb: 0 }; });
+
+    for (const sess of sessions) {
+      if (sess.type === 'gym' && sess.exercises) {
+        for (const exEntry of sess.exercises) {
+          const contrib = MUSCLE_CONTRIB[exEntry.exerciseId];
+          if (!contrib) continue;
+          const completedSets = (exEntry.sets || []).filter(s => s.completed).length;
+          if (!completedSets) continue;
+          for (const [muscle, weight] of Object.entries(contrib)) {
+            if (actual[muscle]) actual[muscle].gym += Math.round(completedSets * weight);
+          }
+        }
+      }
+      if (sess.type === 'kettlebell') {
+        // Determine which KB template was used
+        const tpl = Store.getAllKbTemplates ? Store.getAllKbTemplates().find(t => t.id === sess.templateId) : null;
+        const contrib = tpl && tpl.day === 'kbLower' ? KB_LOWER_CONTRIB :
+                        tpl && tpl.day === 'kbUpper' ? KB_UPPER_CONTRIB :
+                        sess.name && sess.name.toLowerCase().includes('lower') ? KB_LOWER_CONTRIB :
+                        sess.name && sess.name.toLowerCase().includes('upper') ? KB_UPPER_CONTRIB : null;
+        if (contrib) {
+          for (const [muscle, sets] of Object.entries(contrib)) {
+            if (actual[muscle]) actual[muscle].kb += sets;
+          }
+        }
+      }
+    }
+
+    // Build the HTML
+    const today = Utils.todayISO();
+    const weekStart = Utils.startOfWeek(today);
+    const weekEnd = Utils.addDays(weekStart, 6);
+    const gymDone = sessions.filter(s => s.type === 'gym').length;
+    const kbDone = sessions.filter(s => s.type === 'kettlebell').length;
+
+    const rows = MUSCLES.map(m => {
+      const { gym, kb } = actual[m.name];
+      const total = gym + kb;
+      const isIntensity = m.method === 'intensity';
+      const color = kb > 0 && gym === 0
+        ? 'var(--kb, #7c5cbf)'
+        : isIntensity ? 'var(--intensity, #e04e18)' : 'var(--volume, #0da87e)';
+      const kbColor = 'var(--kb, #7c5cbf)';
+
+      // Bar: gym portion + KB portion, relative to max
+      const pctGym = Math.min(100, Math.round((gym / m.max) * 100));
+      const pctKb  = Math.min(100 - pctGym, Math.round((kb / m.max) * 100));
+      const pctMin  = Math.round((m.min / m.max) * 100); // target line
+
+      const statusIcon = total >= m.min && total <= m.max ? '✓' :
+                          total > m.max ? '↑' :
+                          total > 0 ? '↗' : '';
+      const statusColor = total >= m.min ? 'var(--success, #0da87e)' :
+                          total > 0 ? 'var(--accent, #e04e18)' : 'var(--muted, #8888a4)';
+
+      return `
+        <div class="vol-row">
+          <div class="vol-label">
+            <span class="vol-name">${m.name}</span>
+            <span class="vol-count" style="color:${statusColor};">${total} sets ${statusIcon}</span>
+          </div>
+          <div class="vol-bar-wrap">
+            <div class="vol-bar-track">
+              <div class="vol-bar-gym" style="width:${pctGym}%;background:${isIntensity ? 'var(--intensity,#e04e18)' : 'var(--volume,#0da87e)'}"></div>
+              <div class="vol-bar-kb" style="width:${pctKb}%;background:${kbColor}"></div>
+            </div>
+            <div class="vol-target-line" style="left:${pctMin}%" title="Min target: ${m.min} sets"></div>
+          </div>
+          <div class="vol-range">${m.min}–${m.max}</div>
+        </div>`;
+    }).join('');
+
+    return `
+      <div class="section-title">Weekvolume — ${Utils.formatDateShort(weekStart)} t/m ${Utils.formatDateShort(weekEnd)}</div>
+      <div class="card" style="padding:12px 16px 8px;">
+        <div class="vol-legend">
+          <span class="vol-dot" style="background:var(--intensity,#e04e18);"></span><span>Intensiteit (gym)</span>
+          <span class="vol-dot" style="background:var(--volume,#0da87e);margin-left:12px;"></span><span>Volume (gym)</span>
+          <span class="vol-dot" style="background:var(--kb,#7c5cbf);margin-left:12px;"></span><span>Kettlebell</span>
+        </div>
+        <div class="vol-list mt-12">
+          ${rows}
+        </div>
+        <p class="text-muted text-sm mt-12" style="font-size:11px;">De verticale streep toont het minimum wekelijks volume. Gym: ${gymDone} sessie(s) · KB: ${kbDone} sessie(s) voltooid.</p>
+      </div>
+
+      <div class="section-title mt-16">Doelbereik per spiergroep</div>
+      <div class="card" style="padding:4px 16px 12px;">
+        ${MUSCLES.map(m => {
+          const total = actual[m.name].gym + actual[m.name].kb;
+          const ok = total >= m.min;
+          return `<div class="list-row" style="padding:10px 0;">
+            <div style="flex:1;">
+              <div class="l-title">${m.name}</div>
+              <div class="l-sub">${m.method === 'intensity' ? 'Intensiteitsmethode' : 'Volumemethode'} · doel ${m.min}–${m.max} sets</div>
+            </div>
+            <div class="l-val" style="color:${ok ? 'var(--success,#0da87e)' : 'var(--muted,#8888a4)'};">${total}/${m.min}</div>
+          </div>`;
+        }).join('')}
+      </div>`;
   }
 
   function exerciseListHtml() {
@@ -92,7 +258,7 @@
       const ref = Utils.addDays(now, -7 * i);
       const w = await Store.getWeekSummary(ref);
       rows += `<div class="list-row">
-        <div><div class="l-title">Week van ${Utils.formatDateShort(w.start)}</div><div class="l-sub">${w.strengthDone}/4 kracht · ${w.cardioDone}/1 cardio</div></div>
+        <div><div class="l-title">Week van ${Utils.formatDateShort(w.start)}</div><div class="l-sub">${w.strengthDone}/5 trainingen · ${w.complete ? '✓ volledig' : 'onvolledig'}</div></div>
         <div class="l-val" style="color:${w.complete ? 'var(--success)' : 'var(--text-faint)'};">${w.complete ? '✓' : ''}</div>
       </div>`;
     }

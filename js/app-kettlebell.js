@@ -39,9 +39,13 @@
   };
 
   function findTemplate(id) {
-    // search all kb templates in store cache via exposed getter workaround
+    // Use Store's getAllKbTemplates if available
+    if (Store.getAllKbTemplates) {
+      return Store.getAllKbTemplates().find(t => t.id === id);
+    }
+    // Fallback: search known day keys
     const all = [];
-    ['upperA', 'lowerA', 'upperB', 'lowerB'].forEach(day => {
+    ['push', 'pull', 'legs', 'kbUpper', 'kbLower'].forEach(day => {
       const pair = Store.getKbTemplatesByDay(day);
       if (pair.standard) all.push(pair.standard);
       if (pair.express) all.push(pair.express);

@@ -119,6 +119,7 @@ const Store = (() => {
   function getGymTemplateByDay(dayKeyName) {
     return Object.values(cache.gymTemplates).find(t => t.day === dayKeyName);
   }
+  function getKbTemplate(id) { return cache.kbTemplates[id]; }
   function getKbTemplatesByDay(dayKeyName) {
     const items = Object.values(cache.kbTemplates).filter(t => t.day === dayKeyName);
     return {
@@ -126,10 +127,12 @@ const Store = (() => {
       express: items.find(t => t.variant === 'express'),
     };
   }
+  function getAllKbTemplates() { return Object.values(cache.kbTemplates); }
   function getCardioTemplate() { return cache.cardioTemplate; }
 
   // --------------------------------------------------------- plan resolve
   // Returns the resolved plan for a given ISO date, accounting for overrides.
+  // plan.type: 'rest' | 'cardio' | 'strength' | 'kettlebell_only'
   async function getPlanForDate(dateISO) {
     const dayIdx = Utils.isoWeekday(dateISO);
     const dayKey = DAY_KEYS[dayIdx];
@@ -165,8 +168,19 @@ const Store = (() => {
       plan.cardioTemplate = getCardioTemplate();
       return plan;
     }
+
+    // Check if this is a KB-only day (no gym template exists for this key)
+    const gymTpl = getGymTemplateByDay(workoutKey);
+    if (!gymTpl) {
+      // KB-only day (e.g. kbUpper, kbLower)
+      const kbPair = getKbTemplatesByDay(workoutKey);
+      plan.type = 'kettlebell_only';
+      plan.kettlebell = kbPair;
+      return plan;
+    }
+
     plan.type = 'strength';
-    plan.gymTemplate = getGymTemplateByDay(workoutKey);
+    plan.gymTemplate = gymTpl;
     plan.kettlebell = getKbTemplatesByDay(workoutKey);
     return plan;
   }
@@ -285,8 +299,8 @@ const Store = (() => {
     return {
       start, end, sessions,
       strengthDone, cardioDone,
-      strengthTarget: 4, cardioTarget: 1,
-      complete: strengthDone >= 4 && cardioDone >= 1,
+      strengthTarget: 5, cardioTarget: 0,
+      complete: strengthDone >= 5,
     };
   }
 
@@ -420,7 +434,7 @@ const Store = (() => {
     getSettings, updateSettings, getMeta, updateMeta,
     getSchedule, updateSchedule, setDayWorkout, DAY_KEYS,
     getExercise, getAllExercises, saveExercise, archiveExercise, getExerciseNote, setExerciseNote,
-    getGymTemplate, getGymTemplateByDay, getKbTemplatesByDay, getCardioTemplate,
+    getGymTemplate, getGymTemplateByDay, getKbTemplate, getKbTemplatesByDay, getAllKbTemplates, getCardioTemplate,
     getPlanForDate, getOverridesInRange, setOverride, clearOverride, moveWorkout, skipWorkout,
     getRecord, getAllRecords,
     saveSession, getSession, deleteSession, getAllSessions, getSessionsForDate,

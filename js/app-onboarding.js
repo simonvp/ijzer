@@ -145,7 +145,7 @@
   }
 
   function labelForWorkoutKey(k) {
-    const map = { upperA: 'Upper A', lowerA: 'Lower A', upperB: 'Upper B', lowerB: 'Lower B', cardio: 'Cardio', rest: 'Rust' };
+    const map = { push: 'Push', pull: 'Pull', legs: 'Legs', kbUpper: 'KB Upper', kbLower: 'KB Lower', cardio: 'Cardio', rest: 'Rust' };
     return map[k] || 'Rust';
   }
 })();
