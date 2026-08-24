@@ -46,6 +46,19 @@ const Store = (() => {
 
     // Built-in templates aren't user-editable, so it's safe to always refresh them.
     await DB.bulkPut('workoutTemplates', [...Seed.gymTemplates, ...Seed.kettlebellTemplates, Seed.cardioTemplate]);
+
+    // Migrate schedule: if the stored schedule contains day values that are no longer
+    // valid (e.g. old keys from a previous schema), reset it to the current default.
+    // This never runs on a fresh install (seedAll handles that) and never fires when
+    // the user already has a valid schedule.
+    const VALID_WORKOUT_KEYS = new Set(['push', 'pull', 'legs', 'kbUpper', 'kbLower', 'cardio', 'rest']);
+    const existingSchedule = await DB.get('schedule', 'app');
+    if (existingSchedule && existingSchedule.days) {
+      const hasUnknownKey = Object.values(existingSchedule.days).some(k => k && !VALID_WORKOUT_KEYS.has(k));
+      if (hasUnknownKey) {
+        await DB.put('schedule', Seed.defaultSchedule);
+      }
+    }
   }
 
   async function loadCache() {
