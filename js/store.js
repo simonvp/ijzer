@@ -422,9 +422,28 @@ const Store = (() => {
   async function importAll(data) {
     await DB.clearAllStores();
     if (data.settings) await DB.put('settings', data.settings);
-    if (data.schedule) await DB.put('schedule', data.schedule);
-    if (data.exercises) await DB.bulkPut('exercises', data.exercises);
-    if (data.templates) await DB.bulkPut('workoutTemplates', data.templates);
+
+    // Migrate schedule: if the backup contains old day keys (e.g. 'upper', 'lower',
+    // 'upperA', 'lowerA', …) that no longer exist in the current schema, reset the
+    // schedule to the current default so gym days are immediately selectable.
+    const VALID_WORKOUT_KEYS = new Set(['push', 'pull', 'legs', 'kbUpper', 'kbLower', 'cardio', 'rest']);
+    let scheduleToStore = data.schedule;
+    if (scheduleToStore && scheduleToStore.days) {
+      const hasUnknownKey = Object.values(scheduleToStore.days).some(k => k && !VALID_WORKOUT_KEYS.has(k));
+      if (hasUnknownKey) scheduleToStore = Seed.defaultSchedule;
+    }
+    if (scheduleToStore) await DB.put('schedule', scheduleToStore);
+
+    // Merge exercises: keep user-added exercises from the backup but always
+    // ensure the current built-in library is present.
+    const importedExercises = data.exercises || [];
+    const builtInIds = new Set(Seed.exercises.map(e => e.id));
+    const userExercises = importedExercises.filter(e => !builtInIds.has(e.id));
+    await DB.bulkPut('exercises', [...Seed.exercises, ...userExercises]);
+
+    // Always use current built-in templates (overrides old template schema).
+    await DB.bulkPut('workoutTemplates', [...Seed.gymTemplates, ...Seed.kettlebellTemplates, Seed.cardioTemplate]);
+
     if (data.sessions) await DB.bulkPut('sessions', data.sessions);
     if (data.bodyweight) await DB.bulkPut('bodyweight', data.bodyweight);
     if (data.measurements) await DB.bulkPut('measurements', data.measurements);
