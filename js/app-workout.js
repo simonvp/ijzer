@@ -129,6 +129,24 @@
   function renderExerciseCard(ex, idx, prevEntry) {
     const meta = Store.getExercise(ex.exerciseId);
     const t = ex.target;
+
+    // Warm-up: show a simple info block, no set-tracking
+    if (t.warmup) {
+      return `
+        <div class="card ex-card" data-ex="${idx}" style="border-left: 3px solid var(--text-faint);">
+          <div class="ex-head">
+            <div>
+              <div class="ex-name" style="color:var(--text-muted);font-size:13px;text-transform:uppercase;letter-spacing:.04em;">Warm-up · 5 min</div>
+              <div class="ex-sub" style="font-size:15px;font-weight:600;color:var(--text);margin-top:2px;">${App.esc(meta.name)}</div>
+            </div>
+            <button class="icon-btn" style="width:30px;height:30px;" data-info="${ex.exerciseId}" title="Info">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+            </button>
+          </div>
+          ${meta.instructions ? `<p class="text-muted text-sm" style="margin-top:6px;">${App.esc(meta.instructions)}</p>` : ''}
+        </div>`;
+    }
+
     const unitLabel = App.weightUnitLabel(meta);
     const prevText = prevEntry
       ? 'Vorige: ' + prevEntry.entry.sets.filter(s => s.completed).map(s => `${Utils.fmtKg(s.weight)}×${s.reps}`).join(', ')
@@ -289,8 +307,10 @@
 
   // -------------------------------------------------------------- finish
   async function finishWorkout() {
-    const totalSets = session.exercises.reduce((a, e) => a + e.sets.length, 0);
-    const doneSets = session.exercises.reduce((a, e) => a + e.sets.filter(s => s.completed).length, 0);
+    // Exclude warmup exercises from set counts — they have no trackable sets.
+    const trackable = session.exercises.filter(e => !e.target.warmup);
+    const totalSets = trackable.reduce((a, e) => a + e.sets.length, 0);
+    const doneSets = trackable.reduce((a, e) => a + e.sets.filter(s => s.completed).length, 0);
     if (doneSets === 0) {
       App.showToast('Registreer minstens één set voor je afrondt');
       return;
