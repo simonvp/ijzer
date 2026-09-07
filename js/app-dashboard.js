@@ -190,7 +190,13 @@
 
     const btnStart = App.$('#btnStart');
     if (btnStart) btnStart.onclick = () => {
-      App.navigate('workout', [plan.gymTemplate.id]);
+      const day = plan.gymTemplate.day;
+      const variants = Store.getGymTemplatesByDay(day);
+      if (variants.length > 1) {
+        App.openVariantPicker(dateISO, day, plan.gymTemplate.name);
+      } else {
+        App.navigate('workout', [plan.gymTemplate.id, '', dateISO]);
+      }
     };
 
     const btnStartKB = App.$('#btnStartKB');

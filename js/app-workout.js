@@ -96,11 +96,6 @@
           </div>
         </div>
 
-        <div class="btn-row mt-8" style="margin-bottom:16px;">
-          <button class="btn sm ${!is80 ? 'primary' : ''}" id="btnFull">Volledige training</button>
-          <button class="btn sm ${is80 ? 'primary' : ''}" id="btn80">80%-versie</button>
-        </div>
-
         <div id="exList">
           ${session.exercises.map((ex, i) => renderExerciseCard(ex, i, prevMap[ex.exerciseId])).join('')}
         </div>
@@ -121,8 +116,6 @@
       const ok = await App.confirm('Deze training annuleren? Ingevoerde data gaat verloren.', { okLabel: 'Annuleren training', danger: true });
       if (ok) App.navigate('today');
     };
-    App.$('#btnFull').onclick = () => { applyEssentialFilter(false); render(); };
-    App.$('#btn80').onclick = () => { applyEssentialFilter(true); render(); };
     App.$('#btnFinish').onclick = finishWorkout;
   }
 
@@ -160,6 +153,7 @@
           <div>
             <div class="ex-name">${App.esc(meta.name)}</div>
             <div class="ex-sub">${meta.primaryMuscle}${unitLabel ? ' · ' + unitLabel : ''} · ${t.repsMin}-${t.repsMax} reps · RIR ${t.rir}</div>
+            ${t.note ? `<div class="ex-note">${App.esc(t.note)}</div>` : ''}
             <div class="ex-prev">${App.esc(prevText)}</div>
           </div>
           <div style="display:flex;gap:6px;flex:none;">

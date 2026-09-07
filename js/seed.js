@@ -64,11 +64,15 @@ const Seed = (() => {
     { id: 'kb_row', name: 'One-arm Kettlebell Row', category: 'Pull', primaryMuscle: 'Upper back', secondaryMuscles: ['Biceps'], equipment: 'Kettlebell', location: 'home', type: 'compound', weightUnit: 'kettlebell', defaultReps: '8-10 per arm', defaultRest: 0, instructions: 'Bent over, pull kettlebell toward hip.', cues: 'Keep back neutral.', mistakes: 'Rotation in the torso.', alternatives: [] },
 
     // ── Extra LEGS exercises ──────────────────────────────────────────────
+    { id: 'ex_warmup_legs_80', name: '2 Build-up Sets — Hack Squat / Leg Press', category: 'Warm-up', primaryMuscle: 'Mobility', secondaryMuscles: ['Quadriceps', 'Knees'], equipment: 'Machine', location: 'gym', type: 'warmup', weightUnit: 'bodyweight', defaultReps: '5 min', defaultRest: 0, instructions: '2 build-up sets on hack squat or leg press at 50–60% of your working weight. Focus on full range of motion and joint prep.', cues: 'Light weight, controlled descent. Open up the knees and hips before loading.', mistakes: 'Skipping warm-up sets on heavy quad compounds — increases injury risk.', alternatives: [] },
     { id: 'ex_warmup_legs', name: 'Leg Swings + Empty Bar Squat', category: 'Warm-up', primaryMuscle: 'Mobility', secondaryMuscles: ['Quadriceps', 'Hips'], equipment: 'Empty barbell', location: 'gym', type: 'warmup', weightUnit: 'bodyweight', defaultReps: '5 min', defaultRest: 0, instructions: '10 leg swings front/back + 10 sideways per leg. Then 2×10 empty bar squat — focus on depth, knees follow feet, chest up.', cues: 'Easy pace. Feel the movement, open up the hips.', mistakes: 'Starting too fast, squat not deep enough.', alternatives: [] },
     { id: 'ex_leg_press', name: 'Leg Press', category: 'Squat', primaryMuscle: 'Quadriceps', secondaryMuscles: ['Glutes'], equipment: 'Machine', location: 'gym', type: 'compound', weightUnit: 'machine', defaultReps: '10-15', defaultRir: '2-3', defaultRest: 120, instructions: 'Feet shoulder-width, in the middle of the platform. Lower under control to 90°.', cues: 'Keep back flat against the pad. Push feet actively into the platform.', mistakes: 'Knees caving inward. Lifting the heels.', alternatives: ['ex_back_squat', 'ex_hack_squat'] },
     { id: 'ex_nordic_curl', name: 'Nordic Hamstring Curl', category: 'Hinge', primaryMuscle: 'Hamstrings (eccentric)', secondaryMuscles: ['Calves', 'Glutes'], equipment: 'Bench or partner', location: 'gym', type: 'compound', weightUnit: 'bodyweight', defaultReps: '5-8', defaultRir: null, defaultRest: 120, instructions: 'Ankles fixed. Lower body forward slowly — brake with the hamstrings as long as possible. Catch with hands, push back.', cues: 'Body straight, glutes squeezed. Brake as long as possible.', mistakes: 'Falling too fast. Bending at the hips.', alternatives: ['ex_leg_curl', 'ex_seated_leg_curl'] },
     { id: 'ex_hip_thrust', name: 'Hip Thrust', category: 'Hinge', primaryMuscle: 'Gluteus Maximus', secondaryMuscles: ['Hamstrings', 'Core'], equipment: 'Barbell, bench', location: 'gym', type: 'compound', weightUnit: 'barbell', defaultReps: '10-15', defaultRir: '2-3', defaultRest: 90, instructions: 'Shoulder blades on bench, bar over hips (foam roller). Full extension at the top, squeeze glutes for 1 sec.', cues: "Drive hips upward, don't hyperextend the back. Look straight ahead.", mistakes: 'Hyperextending the lower back at the top. No full extension.', alternatives: ['ex_rdl'] },
     { id: 'ex_sl_calf_raise', name: 'Single-leg Calf Raise', category: 'Isolation', primaryMuscle: 'Calves (unilateral)', secondaryMuscles: ['Gastrocnemius'], equipment: 'Step', location: 'gym', type: 'isolatie', weightUnit: 'bodyweight', defaultReps: '10-15 per leg', defaultRir: null, defaultRest: 60, instructions: 'On an elevated surface (step). Other foot behind the ankle. Full descent — maximum stretch at the bottom. Slow raise.', cues: "Brief pause at the top. Full range — don't stop halfway.", mistakes: 'Stopping halfway. No full stretch at the bottom.', alternatives: ['ex_standing_calf_raise'] },
+
+    // ── Core / Abs exercises ──────────────────────────────────────────────
+    { id: 'ex_hanging_knee_raise', name: 'Hanging Knee Raise', category: 'Core', primaryMuscle: 'Abs', secondaryMuscles: ['Hip flexors'], equipment: 'Pull-up bar', location: 'gym', type: 'isolatie', weightUnit: 'bodyweight', defaultReps: '10-15', defaultRir: '1-2', defaultRest: 60, instructions: 'Hang from a pull-up bar. Raise knees toward chest, curling the pelvis upward at the top.', cues: 'Avoid swinging. Control the descent slowly.', mistakes: 'Using momentum, cutting range short, not curling the pelvis.', alternatives: ['ex_reverse_crunch', 'ex_cable_crunch'] },
 
     // Cardio
     { id: 'ex_cardio_session', name: 'Cardio Session', category: 'Cardio', primaryMuscle: 'Cardiovascular', secondaryMuscles: [], equipment: 'Various', location: 'both', type: 'cardio', weightUnit: 'bodyweight', defaultReps: '45-75 min', defaultRest: 0, instructions: 'Cycling, swimming, easy running, walking with incline, or freestyle cardio — mainly zone 2.', cues: 'Not fully exhausting.', mistakes: 'Too high intensity that impairs strength recovery.', alternatives: [] },
@@ -147,6 +151,30 @@ const Seed = (() => {
       ]
     },
   ];
+
+  // ---- Legs 80% variant (shorter / efficient session) ------------------
+  gymTemplates.push({
+    id: 'gym_legs_80', type: 'gym', day: 'legs', variant: '80',
+    name: 'Legs 80% — Efficient',
+    focus: ['Quadriceps', 'Hamstrings', 'Calves', 'Abs'],
+    exercises: [
+      // Warm-up: 2 build-up sets on hack squat / leg press
+      { exerciseId: 'ex_warmup_legs_80', sets: 1, repsMin: 0, repsMax: 0, rir: null, restSec: 0, essential: true, method: 'warmup', warmup: true },
+      // ── QUAD COMPOUND ────────────────────────────────────────────────────
+      { exerciseId: 'ex_hack_squat', sets: 4, repsMin: 6, repsMax: 10, rir: '1-2', restSec: 120, essential: true, method: 'intensity', note: 'Or Leg Press' },
+      // ── HAMSTRINGS ───────────────────────────────────────────────────────
+      { exerciseId: 'ex_rdl', sets: 3, repsMin: 8, repsMax: 10, rir: '1-2', restSec: 90, essential: true, method: 'volume' },
+      // ── SUPERSET: Leg Extension + Leg Curl ───────────────────────────────
+      { exerciseId: 'ex_leg_extension', sets: 3, repsMin: 10, repsMax: 15, rir: '0-1', restSec: 0, essential: true, method: 'volume', supersetGroup: 'ss1', note: '↕ Superset — go straight to Leg Curl' },
+      { exerciseId: 'ex_leg_curl', sets: 3, repsMin: 10, repsMax: 15, rir: '0-1', restSec: 60, essential: true, method: 'volume', supersetGroup: 'ss1', note: '60 sec rest after this superset' },
+      // ── CALVES ───────────────────────────────────────────────────────────
+      { exerciseId: 'ex_standing_calf_raise', sets: 3, repsMin: 10, repsMax: 15, rir: '0-1', restSec: 50, essential: true, method: 'volume', note: '45–60 sec rest' },
+      // ── ABS CIRCUIT (3 rounds) ────────────────────────────────────────────
+      { exerciseId: 'ex_cable_crunch', sets: 3, repsMin: 10, repsMax: 15, rir: '1-2', restSec: 0, essential: false, method: 'volume', circuitGroup: 'abs', note: 'Abs circuit 1/3 — no rest, go to Hanging Knee Raise' },
+      { exerciseId: 'ex_hanging_knee_raise', sets: 3, repsMin: 10, repsMax: 15, rir: '1-2', restSec: 0, essential: false, method: 'volume', circuitGroup: 'abs', note: 'Abs circuit 2/3 — no rest, go to Pallof Press' },
+      { exerciseId: 'ex_pallof_press', sets: 3, repsMin: 10, repsMax: 10, rir: '1-2', restSec: 40, essential: false, method: 'volume', circuitGroup: 'abs', note: 'Abs circuit 3/3 — 30–45 sec rest between rounds' },
+    ],
+  });
 
   // ---- Kettlebell templates (standalone KB days) ------------------------
   // These are NOT alternatives to gym days — they ARE the day.

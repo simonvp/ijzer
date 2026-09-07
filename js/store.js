@@ -129,8 +129,19 @@ const Store = (() => {
 
   // ------------------------------------------------------------ templates
   function getGymTemplate(id) { return cache.gymTemplates[id]; }
+  function getGymTemplatesByDay(dayKeyName) {
+    // Returns all gym templates for a day, full/primary variant first.
+    const all = Object.values(cache.gymTemplates).filter(t => t.day === dayKeyName);
+    all.sort((a, b) => {
+      const rank = v => (!v || v === 'full') ? 0 : 1;
+      return rank(a.variant) - rank(b.variant);
+    });
+    return all;
+  }
   function getGymTemplateByDay(dayKeyName) {
-    return Object.values(cache.gymTemplates).find(t => t.day === dayKeyName);
+    // Always returns the primary (full) template for the day.
+    const all = getGymTemplatesByDay(dayKeyName);
+    return all[0] || null;
   }
   function getKbTemplate(id) { return cache.kbTemplates[id]; }
   function getKbTemplatesByDay(dayKeyName) {
@@ -466,7 +477,7 @@ const Store = (() => {
     getSettings, updateSettings, getMeta, updateMeta,
     getSchedule, updateSchedule, setDayWorkout, DAY_KEYS,
     getExercise, getAllExercises, saveExercise, archiveExercise, getExerciseNote, setExerciseNote,
-    getGymTemplate, getGymTemplateByDay, getKbTemplate, getKbTemplatesByDay, getAllKbTemplates, getCardioTemplate,
+    getGymTemplate, getGymTemplateByDay, getGymTemplatesByDay, getKbTemplate, getKbTemplatesByDay, getAllKbTemplates, getCardioTemplate,
     getPlanForDate, getOverridesInRange, setOverride, clearOverride, moveWorkout, skipWorkout,
     getRecord, getAllRecords,
     saveSession, getSession, deleteSession, getAllSessions, getSessionsForDate,

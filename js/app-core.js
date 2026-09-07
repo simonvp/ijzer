@@ -214,20 +214,40 @@ App.openAdHocPicker = function (dateISO) {
   if (cardioRow) cardioRow.onclick = () => { App.closeSheet(); App.navigate('cardio-log', [dateISO]); };
 };
 
-// Gym day — show gym start option
+// Gym day — list all available variants for the day
 App.openVariantPicker = function (dateISO, dayKey, label) {
-  const gymTpl = Store.getGymTemplateByDay(dayKey);
-  if (!gymTpl) { App.openAdHocPicker(dateISO); return; }
+  const templates = Store.getGymTemplatesByDay(dayKey);
+  if (!templates.length) { App.openAdHocPicker(dateISO); return; }
+
+  const VARIANT_META = {
+    full: { title: 'Full session',  duration: '~70–90 min' },
+    '80': { title: '80% version',   duration: '~45–55 min' },
+  };
+
+  const primaryTpl = templates[0];
+  const rowsHtml = templates.map(tpl => {
+    const vm = VARIANT_META[tpl.variant] || { title: 'Full session', duration: '~60+ min' };
+    const trackable = (tpl.exercises || []).filter(e => !e.warmup);
+    return `
+      <div class="list-row" data-tplid="${App.esc(tpl.id)}" style="cursor:pointer;">
+        <div>
+          <div class="l-title">${App.esc(vm.title)}</div>
+          <div class="l-sub">${vm.duration} · ${trackable.length} exercises</div>
+        </div>
+        <div class="l-val" style="color:var(--text-faint);">›</div>
+      </div>`;
+  }).join('');
+
   App.openSheet(`
-    <h3>${App.esc(gymTpl.name)}</h3>
+    <h3>${App.esc(primaryTpl.name)}</h3>
     <p class="text-muted text-sm mt-8">${Utils.formatDateLong(dateISO)}</p>
-    <div class="card mt-16">
-      <div class="list-row" data-variant="gym" style="cursor:pointer;">
-        <div><div class="l-title">Volledige gymsessie</div><div class="l-sub">~60 min · ${gymTpl.exercises.length} oefeningen</div></div><div class="l-val" style="color:var(--text-faint);">›</div></div>
-    </div>
-    <button class="btn ghost block mt-12" id="btnBackToDayPick">‹ Terug</button>
+    <div class="card mt-16">${rowsHtml}</div>
+    <button class="btn ghost block mt-12" id="btnBackToDayPick">‹ Back</button>
   `);
-  App.$('[data-variant="gym"]').onclick = () => { App.closeSheet(); App.navigate('workout', [gymTpl.id, '', dateISO]); };
+
+  App.$$('.list-row[data-tplid]').forEach(row => {
+    row.onclick = () => { App.closeSheet(); App.navigate('workout', [row.dataset.tplid, '', dateISO]); };
+  });
   App.$('#btnBackToDayPick').onclick = () => App.openAdHocPicker(dateISO);
 };
 

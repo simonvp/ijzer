@@ -323,9 +323,9 @@
         const text = await file.text();
         const data = JSON.parse(text);
         await Store.importAll(data);
-        App.applyTheme();
-        App.showToast('Import voltooid');
-        App.navigate('today');
+        // Hard reload so Store.init() runs fresh with restored data.
+        window.location.hash = '#/today';
+        location.reload();
       } catch (err) {
         App.showToast('Kon bestand niet importeren');
       }
