@@ -191,6 +191,11 @@ App.openAdHocPicker = function (dateISO) {
     ['kbUpper', 'KB Upper — Kracht & Stabiliteit'],
     ['kbLower', 'KB Lower — Hip Power & Balans'],
   ];
+  // TRX days (direct template, no variant picker)
+  const trxDays = [
+    ['trx_upper', 'trxUpper', 'TRX Upper — Rug · Borst · Schouders · Arms'],
+    ['trx_lower', 'trxLower', 'TRX Lower — Quads · Glutes · Hamstrings'],
+  ];
 
   App.openSheet(`
     <h3>Training kiezen</h3>
@@ -200,6 +205,8 @@ App.openAdHocPicker = function (dateISO) {
         <div><div class="l-title">${App.esc(label.split(' — ')[0])}</div><div class="l-sub">${App.esc(label.split(' — ')[1] || '')}</div></div><div class="l-val" style="color:var(--text-faint);">›</div></div>`).join('')}
       ${kbDays.map(([key, label]) => `<div class="list-row" data-kbday="${key}" data-label="${App.esc(label)}" style="cursor:pointer;">
         <div><div class="l-title" style="color:var(--kb2,#a882f0);">${App.esc(label.split(' — ')[0])}</div><div class="l-sub">${App.esc(label.split(' — ')[1] || '')}</div></div><div class="l-val" style="color:var(--text-faint);">›</div></div>`).join('')}
+      ${trxDays.map(([tplId, , label]) => `<div class="list-row" data-trxday="${App.esc(tplId)}" style="cursor:pointer;">
+        <div><div class="l-title" style="color:var(--accent2,#3db88a);">${App.esc(label.split(' — ')[0])}</div><div class="l-sub">${App.esc(label.split(' — ')[1] || '')}</div></div><div class="l-val" style="color:var(--text-faint);">›</div></div>`).join('')}
       <div class="list-row" data-cardio="1" style="cursor:pointer;">
         <div class="l-title">Cardio</div><div class="l-val" style="color:var(--text-faint);">›</div></div>
     </div>
@@ -209,6 +216,10 @@ App.openAdHocPicker = function (dateISO) {
   });
   App.$$('.list-row[data-kbday]').forEach(row => row.onclick = () => {
     App.openKBDayPicker(dateISO, row.dataset.kbday, row.dataset.label);
+  });
+  App.$$('.list-row[data-trxday]').forEach(row => row.onclick = () => {
+    App.closeSheet();
+    App.navigate('workout', [row.dataset.trxday, '', dateISO]);
   });
   const cardioRow = App.$('.list-row[data-cardio]');
   if (cardioRow) cardioRow.onclick = () => { App.closeSheet(); App.navigate('cardio-log', [dateISO]); };
