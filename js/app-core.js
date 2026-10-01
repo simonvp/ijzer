@@ -185,6 +185,7 @@ App.openAdHocPicker = function (dateISO) {
     ['push', 'Push — Borst · Schouders · Triceps'],
     ['pull', 'Pull — Rug · Biceps · Achterste schouders'],
     ['legs', 'Legs — Quads · Hamstrings · Kuiten'],
+    ['fullBody', 'Full Body — Alle Spiergroepen · ~60 min'],
   ];
   // KB-only days
   const kbDays = [

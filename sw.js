@@ -2,7 +2,7 @@
    sw.js — app shell caching for offline use
    ============================================================ */
 
-const CACHE_NAME = 'ijzer-cache-v7';
+const CACHE_NAME = 'ijzer-cache-v9';
 const APP_SHELL = [
   './',
   './index.html',

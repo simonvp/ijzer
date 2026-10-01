@@ -96,6 +96,22 @@ const Seed = (() => {
     { id: 'ex_trx_squeeze_quads', name: 'TRX Quad Squeeze', category: 'Isolation', primaryMuscle: 'Quadriceps', secondaryMuscles: [], equipment: 'TRX', location: 'home', type: 'isolatie', weightUnit: 'bodyweight', defaultReps: '8', defaultRir: null, defaultRest: 15, instructions: 'Seated or standing, maximally contract the quadriceps and hold for 8 seconds. Brief rest, then repeat.', cues: 'Squeeze as hard as possible — maximum isometric tension.', mistakes: 'Releasing tension too early.', alternatives: [] },
     { id: 'ex_trx_squeeze_hams', name: 'TRX Hamstring & Glute Squeeze', category: 'Isolation', primaryMuscle: 'Hamstrings', secondaryMuscles: ['Glutes'], equipment: 'TRX', location: 'home', type: 'isolatie', weightUnit: 'bodyweight', defaultReps: '8', defaultRir: null, defaultRest: 15, instructions: 'Lying or seated, maximally contract the hamstrings and glutes simultaneously and hold for 8 seconds. Brief rest, then repeat.', cues: 'Drive heels into the ground to activate hamstrings. Squeeze glutes hard.', mistakes: 'Only squeezing the glutes without engaging hamstrings.', alternatives: [] },
 
+    // ── Full Body warm-up ─────────────────────────────────────────────────
+    { id: 'ex_warmup_fullbody', name: 'Full Body Warm-up', category: 'Warm-up', primaryMuscle: 'Full body', secondaryMuscles: [], equipment: 'Empty barbell', location: 'gym', type: 'warmup', weightUnit: 'bodyweight', defaultReps: '5 min', defaultRest: 0, instructions: '10 arm circles per arm (forward + backward) · 10 leg swings per leg (front/back) · 10 hip circles per side · 2×5 empty bar squat — full depth, controlled. Opwarmen van alle gewrichten voor je aan de compound oefeningen begint.', cues: 'Langzaam en gecontroleerd. Voel hoe je gewrichten opendraaien.', mistakes: 'Overslaan of te snel doorstomen.', alternatives: [] },
+
+    // ── Forearm exercises ─────────────────────────────────────────────────
+    { id: 'ex_db_wrist_curl', name: 'Dumbbell Wrist Curl', category: 'Isolation', primaryMuscle: 'Forearms (flexors)', secondaryMuscles: [], equipment: 'Dumbbells, bench', location: 'gym', type: 'isolatie', weightUnit: 'per_dumbbell', defaultReps: '10-15', defaultRir: '1-2', defaultRest: 60, instructions: 'Forearms resting on a bench or thighs, palms up. Hold dumbbells and curl the wrists upward through full range of motion.', cues: 'Only the wrists move. Full stretch at the bottom.', mistakes: 'Moving the forearms, using too much weight.', alternatives: ['ex_db_wrist_ext'] },
+    { id: 'ex_db_wrist_ext', name: 'Sideways Dumbbell Wrist Extension', category: 'Isolation', primaryMuscle: 'Forearms (extensors)', secondaryMuscles: [], equipment: 'Dumbbell, bench', location: 'gym', type: 'isolatie', weightUnit: 'per_dumbbell', defaultReps: '10-15', defaultRir: '1-2', defaultRest: 60, instructions: 'Forearm resting on a bench with the wrist hanging off the edge, palm facing inward (thumb up). Extend the wrist upward, then lower back down with control.', cues: 'Slow and controlled. Full range — feel the stretch at the bottom.', mistakes: 'Moving the elbow, going too fast.', alternatives: ['ex_db_wrist_curl'] },
+    { id: 'ex_cable_curl_face_away', name: 'Single Arm Face Away Cable Curl', category: 'Isolation', primaryMuscle: 'Biceps', secondaryMuscles: ['Brachialis'], equipment: 'Cable machine', location: 'gym', type: 'isolatie', weightUnit: 'machine', defaultReps: '10-15', defaultRir: '0-1', defaultRest: 60, instructions: 'Sta met je rug naar het cable station, kabel op schouderhoogte of iets hoger. Houd de handle vast met één arm naast je hoofd, elleboog gebogen. Curl de hand richting je oor, voel de rek in de bicep bij de startpositie.', cues: 'Elleboog blijft hoog en stil. Maximale rek onderaan — laat de arm volledig strekken voor elke rep.', mistakes: 'Elleboog naar voren laten zakken, te weinig rek nemen onderaan.', alternatives: ['ex_cable_curl', 'ex_incline_db_curl'] },
+    { id: 'ex_cable_reverse_curl', name: 'Cable Reverse Curl', category: 'Isolation', primaryMuscle: 'Forearms (brachioradialis)', secondaryMuscles: ['Biceps'], equipment: 'Cable machine', location: 'gym', type: 'isolatie', weightUnit: 'machine', defaultReps: '10-15', defaultRir: '1-2', defaultRest: 60, instructions: 'Stand at a low cable pulley with a straight bar. Grip overhand (palms down), curl the bar up to shoulder height, keeping elbows at the sides.', cues: 'Elbows stay fixed. Full extension at the bottom.', mistakes: 'Letting elbows drift forward, using shoulder momentum.', alternatives: ['ex_db_wrist_curl'] },
+
+    // ── Rope & EZ bar additions ───────────────────────────────────────────
+    { id: 'ex_rope_tricep_pushdown', name: 'Rope Tricep Pushdown', category: 'Isolation', primaryMuscle: 'Triceps', secondaryMuscles: [], equipment: 'Cable machine, rope', location: 'gym', type: 'isolatie', weightUnit: 'machine', defaultReps: '10-15', defaultRir: '0-1', defaultRest: 60, instructions: 'Rope attachment on a high cable. Stand upright, elbows pinned at sides. Push both ends of the rope down and split them outward at the bottom for full extension. Return slowly.', cues: 'Split the rope at the bottom — that extra rotation fully contracts the triceps.', mistakes: 'Elbows drifting forward, not splitting the rope, rushing the return.', alternatives: ['ex_triceps_pushdown', 'ex_rope_overhead_ext'] },
+    { id: 'ex_rope_overhead_ext', name: 'Rope Overhead Tricep Extension', category: 'Isolation', primaryMuscle: 'Triceps (long head)', secondaryMuscles: [], equipment: 'Cable machine, rope', location: 'gym', type: 'isolatie', weightUnit: 'machine', defaultReps: '10-15', defaultRir: '0-1', defaultRest: 60, instructions: 'Rope on a low cable. Face away from the machine. Hold the rope behind your head, arms extended overhead. Lower by bending elbows, then extend back up.', cues: 'Elbows stay close to the head. Feel the stretch in the tricep long head at the bottom.', mistakes: 'Elbows flaring out, cutting the range short at the bottom.', alternatives: ['ex_ov_triceps_ext', 'ex_rope_tricep_pushdown'] },
+    { id: 'ex_ez_bar_cable_curl', name: 'EZ Bar Cable Curl', category: 'Isolation', primaryMuscle: 'Biceps', secondaryMuscles: ['Brachialis'], equipment: 'Cable machine, EZ bar', location: 'gym', type: 'isolatie', weightUnit: 'machine', defaultReps: '10-15', defaultRir: '0-1', defaultRest: 60, instructions: 'EZ bar on a low cable. Stand upright, elbows at sides. Curl the bar to shoulder height under constant tension. Lower with control.', cues: 'Elbows stay fixed at the sides. Squeeze the bicep at the top.', mistakes: 'Swinging the torso, elbows drifting forward.', alternatives: ['ex_cable_curl', 'ex_incline_db_curl'] },
+    { id: 'ex_db_hammer_curl', name: 'Dumbbell Hammer Curl', category: 'Isolation', primaryMuscle: 'Brachialis', secondaryMuscles: ['Biceps', 'Brachioradialis'], equipment: 'Dumbbells', location: 'gym', type: 'isolatie', weightUnit: 'per_dumbbell', defaultReps: '10-15', defaultRir: '0-1', defaultRest: 60, instructions: 'Stand with dumbbells at your sides, palms facing each other (neutral grip). Curl both dumbbells up while keeping the neutral wrist position throughout. Lower with control.', cues: 'Thumbs pointing up the whole time. Elbows stay at the sides.', mistakes: 'Rotating the wrist to supinate — that turns it into a regular curl, missing the brachialis.', alternatives: ['ex_incline_db_curl', 'ex_ez_bar_cable_curl'] },
+    { id: 'ex_dips', name: 'Dips', category: 'Push', primaryMuscle: 'Chest (lower)', secondaryMuscles: ['Triceps', 'Shoulders'], equipment: 'Dip bars', location: 'gym', type: 'compound', weightUnit: 'bodyweight', defaultReps: '6-12', defaultRir: '1-2', defaultRest: 90, instructions: 'Support yourself on dip bars with arms extended. Lower your body by bending the elbows until the upper arms are roughly parallel with the floor. Press back up to full extension.', cues: 'Lean slightly forward to shift emphasis to the chest. Keep elbows at roughly 45° from the body.', mistakes: 'Going too deep and stressing the shoulder joint, not reaching full extension at the top.', alternatives: ['ex_flat_db_bench', 'ex_incline_bb_bench'] },
+
     // Cardio
     { id: 'ex_cardio_session', name: 'Cardio Session', category: 'Cardio', primaryMuscle: 'Cardiovascular', secondaryMuscles: [], equipment: 'Various', location: 'both', type: 'cardio', weightUnit: 'bodyweight', defaultReps: '45-75 min', defaultRest: 0, instructions: 'Cycling, swimming, easy running, walking with incline, or freestyle cardio — mainly zone 2.', cues: 'Not fully exhausting.', mistakes: 'Too high intensity that impairs strength recovery.', alternatives: [] },
   ];
@@ -117,9 +133,11 @@ const Seed = (() => {
         { exerciseId: 'ex_ohp', sets: 3, repsMin: 5, repsMax: 8, rir: '1-2', restSec: 150, essential: true, method: 'intensity' },
         // Lateral delts volume
         { exerciseId: 'ex_lateral_raise', sets: 3, repsMin: 12, repsMax: 20, rir: '0-2', restSec: 60, essential: true, method: 'volume' },
-        // Triceps
-        { exerciseId: 'ex_triceps_pushdown', sets: 3, repsMin: 10, repsMax: 15, rir: '0-1', restSec: 60, essential: false, method: 'volume' },
-        { exerciseId: 'ex_ov_triceps_ext', sets: 3, repsMin: 10, repsMax: 15, rir: '0-1', restSec: 60, essential: false, method: 'volume' },
+        // Chest/triceps compound (optional — heavy pressing already done above)
+        { exerciseId: 'ex_dips', sets: 3, repsMin: 8, repsMax: 12, rir: '1-2', restSec: 90, essential: false, method: 'volume' },
+        // Triceps isolation
+        { exerciseId: 'ex_rope_tricep_pushdown', sets: 3, repsMin: 10, repsMax: 15, rir: '0-1', restSec: 60, essential: false, method: 'volume' },
+        { exerciseId: 'ex_rope_overhead_ext', sets: 3, repsMin: 10, repsMax: 15, rir: '0-1', restSec: 60, essential: false, method: 'volume' },
       ]
     },
     {
@@ -138,7 +156,9 @@ const Seed = (() => {
         { exerciseId: 'ex_face_pull', sets: 2, repsMin: 12, repsMax: 20, rir: '0-2', restSec: 60, essential: false, method: 'volume' },
         // Biceps
         { exerciseId: 'ex_incline_db_curl', sets: 2, repsMin: 10, repsMax: 15, rir: '0-1', restSec: 60, essential: false, method: 'volume' },
-        { exerciseId: 'ex_cable_curl', sets: 2, repsMin: 10, repsMax: 15, rir: '0-1', restSec: 60, essential: false, method: 'volume' },
+        { exerciseId: 'ex_ez_bar_cable_curl', sets: 2, repsMin: 10, repsMax: 15, rir: '0-1', restSec: 60, essential: false, method: 'volume' },
+        { exerciseId: 'ex_db_hammer_curl', sets: 2, repsMin: 10, repsMax: 15, rir: '0-1', restSec: 60, essential: false, method: 'volume' },
+        { exerciseId: 'ex_cable_curl_face_away', sets: 2, repsMin: 12, repsMax: 15, rir: '0-1', restSec: 60, essential: false, method: 'volume', note: 'Per arm' },
       ]
     },
     {
@@ -170,6 +190,10 @@ const Seed = (() => {
         { exerciseId: 'ex_seated_calf_raise', sets: 4, repsMin: 20, repsMax: 20, rir: '2-3', restSec: 60, essential: true, method: 'volume' },
         // Single-leg Calf Raise 3×12 per leg · controlled · rest 1 min
         { exerciseId: 'ex_sl_calf_raise', sets: 3, repsMin: 12, repsMax: 12, rir: '–', restSec: 60, essential: false, method: 'volume' },
+        // ── FOREARMS ─────────────────────────────────────────────────────
+        { exerciseId: 'ex_db_wrist_curl',       sets: 3, repsMin: 10, repsMax: 15, rir: '1-2', restSec: 60, essential: false, method: 'volume' },
+        { exerciseId: 'ex_db_wrist_ext',        sets: 3, repsMin: 10, repsMax: 15, rir: '1-2', restSec: 60, essential: false, method: 'volume' },
+        { exerciseId: 'ex_cable_reverse_curl',  sets: 3, repsMin: 10, repsMax: 15, rir: '1-2', restSec: 60, essential: false, method: 'volume' },
       ]
     },
   ];
@@ -195,6 +219,10 @@ const Seed = (() => {
       { exerciseId: 'ex_cable_crunch', sets: 3, repsMin: 10, repsMax: 15, rir: '1-2', restSec: 0, essential: false, method: 'volume', circuitGroup: 'abs', note: 'Abs circuit 1/3 — no rest, go to Hanging Knee Raise' },
       { exerciseId: 'ex_hanging_knee_raise', sets: 3, repsMin: 10, repsMax: 15, rir: '1-2', restSec: 0, essential: false, method: 'volume', circuitGroup: 'abs', note: 'Abs circuit 2/3 — no rest, go to Pallof Press' },
       { exerciseId: 'ex_pallof_press', sets: 3, repsMin: 10, repsMax: 10, rir: '1-2', restSec: 40, essential: false, method: 'volume', circuitGroup: 'abs', note: 'Abs circuit 3/3 — 30–45 sec rest between rounds' },
+      // ── FOREARMS ─────────────────────────────────────────────────────────
+      { exerciseId: 'ex_db_wrist_curl',       sets: 3, repsMin: 10, repsMax: 15, rir: '1-2', restSec: 60, essential: false, method: 'volume' },
+      { exerciseId: 'ex_db_wrist_ext',        sets: 3, repsMin: 10, repsMax: 15, rir: '1-2', restSec: 60, essential: false, method: 'volume' },
+      { exerciseId: 'ex_cable_reverse_curl',  sets: 3, repsMin: 10, repsMax: 15, rir: '1-2', restSec: 60, essential: false, method: 'volume' },
     ],
   });
 
@@ -231,6 +259,49 @@ const Seed = (() => {
       { exerciseId: 'ex_trx_squeeze_quads',    sets: 2, repsMin: 8,  repsMax: 8,  rir: null,  restSec: 15, essential: true, method: 'volume', note: '8 s hold · 15 s rest' },
       { exerciseId: 'ex_trx_squeeze_hams',     sets: 2, repsMin: 8,  repsMax: 8,  rir: null,  restSec: 15, essential: true, method: 'volume', note: '8 s hold · 15 s rest' },
       { exerciseId: 'ex_cooldown_trx', sets: 1, repsMin: 0, repsMax: 0, rir: null, restSec: 0, essential: true, method: 'warmup', warmup: true },
+    ],
+  });
+
+  // ---- Full Body template (~60 min, alle spiergroepen) ------------------
+  gymTemplates.push({
+    id: 'gym_fullbody', type: 'gym', day: 'fullBody',
+    name: 'Full Body — Alle Spiergroepen',
+    focus: ['Quadriceps', 'Hamstrings', 'Chest', 'Back', 'Shoulders', 'Core', 'Forearms'],
+    exercises: [
+      // Warm-up (5 min)
+      { exerciseId: 'ex_warmup_fullbody', sets: 1, repsMin: 0, repsMax: 0, rir: null, restSec: 0, essential: true, method: 'warmup', warmup: true },
+
+      // ── BENEN — compound eerst (meeste energie nodig) ────────────────────
+      // Back Squat 2×8-10 · 2-3 RIR · 2 min rust
+      { exerciseId: 'ex_back_squat',          sets: 2, repsMin: 8,  repsMax: 10, rir: '2-3', restSec: 120, essential: true, method: 'intensity' },
+      // Romanian Deadlift 2×10 · 2-3 RIR · 90s rust
+      { exerciseId: 'ex_rdl',                 sets: 2, repsMin: 10, repsMax: 10, rir: '2-3', restSec: 90,  essential: true, method: 'volume' },
+
+      // ── BOVENKANT — push & pull gecombineerd ─────────────────────────────
+      // Incline DB Bench Press 2×8-10 · 1-2 RIR · 90s rust
+      { exerciseId: 'ex_incline_db_bench',    sets: 2, repsMin: 8,  repsMax: 10, rir: '1-2', restSec: 90,  essential: true, method: 'intensity' },
+      // Chest Supported Row 2×8-10 · 1-2 RIR · 90s rust
+      { exerciseId: 'ex_chest_supported_row', sets: 2, repsMin: 8,  repsMax: 10, rir: '1-2', restSec: 90,  essential: true, method: 'intensity' },
+      // DB Shoulder Press 2×10-12 · 1-2 RIR · 75s rust
+      { exerciseId: 'ex_db_shoulder_press',   sets: 2, repsMin: 10, repsMax: 12, rir: '1-2', restSec: 75,  essential: true, method: 'volume' },
+
+      // ── ISOLATIE — bijwerken wat de compounds gemist hebben ───────────────
+      // Rope Tricep Pushdown 2×12-15 · 0-1 RIR · 60s rust
+      { exerciseId: 'ex_rope_tricep_pushdown', sets: 2, repsMin: 12, repsMax: 15, rir: '0-1', restSec: 60, essential: true, method: 'volume' },
+      // Single Arm Face Away Cable Curl 2×12-15 · 0-1 RIR · 60s rust
+      { exerciseId: 'ex_cable_curl_face_away', sets: 2, repsMin: 12, repsMax: 15, rir: '0-1', restSec: 60, essential: true, method: 'volume', note: 'Per arm' },
+      // Leg Curl 2×12 · 1-2 RIR · 60s rust
+      { exerciseId: 'ex_leg_curl',            sets: 2, repsMin: 12, repsMax: 12, rir: '1-2', restSec: 60,  essential: true, method: 'volume' },
+      // Lateral Raise 2×15 · 1-2 RIR · 60s rust
+      { exerciseId: 'ex_lateral_raise',       sets: 2, repsMin: 15, repsMax: 15, rir: '1-2', restSec: 60,  essential: true, method: 'volume' },
+      // Standing Calf Raise 2×15 · 0-1 RIR · 60s rust
+      { exerciseId: 'ex_standing_calf_raise', sets: 2, repsMin: 15, repsMax: 15, rir: '0-1', restSec: 60,  essential: true, method: 'volume' },
+      // Cable Crunch 2×12 · 1-2 RIR · 60s rust
+      { exerciseId: 'ex_cable_crunch',        sets: 2, repsMin: 12, repsMax: 15, rir: '1-2', restSec: 60,  essential: true, method: 'volume' },
+
+      // ── ONDERARMEN ────────────────────────────────────────────────────────
+      // Cable Reverse Curl 2×12-15 · 60s rust
+      { exerciseId: 'ex_cable_reverse_curl',  sets: 2, repsMin: 12, repsMax: 15, rir: '1-2', restSec: 60,  essential: false, method: 'volume' },
     ],
   });
 
