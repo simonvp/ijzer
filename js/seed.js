@@ -302,6 +302,9 @@ const Seed = (() => {
       // ── ONDERARMEN ────────────────────────────────────────────────────────
       // Cable Reverse Curl 2×12-15 · 60s rust
       { exerciseId: 'ex_cable_reverse_curl',  sets: 2, repsMin: 12, repsMax: 15, rir: '1-2', restSec: 60,  essential: false, method: 'volume' },
+
+      // ── FINISHER — Assisted Pull-up Dropset ──────────────────────────────
+      { exerciseId: 'ex_assisted_pullup', sets: 4, repsMin: 8, repsMax: 12, rir: '0', restSec: 20, essential: true, method: 'volume', note: 'Dropset — elke set tot failure, verlaag gewicht direct na elke set · ~20 s wisselen' },
     ],
   });
 
